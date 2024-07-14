@@ -1,0 +1,16 @@
+<ion-content [fullscreen]="true">
+  <div id="container">
+   <img src="/assets/logo.jpg" alt="logo">
+
+   <form [formGroup]="applyForm" (ngSubmit)="prijava()">
+
+    <div class="input-div">
+      <input type="text" placeholder="Korisničko ime" required formControlName="korisnik">
+      <input type="password" placeholder="Lozinka" required formControlName="lozinka">
+     </div>
+     
+     <button name="submit" type="submit">Prijava</button>
+   </form>
+  
+  </div>
+</ion-content>

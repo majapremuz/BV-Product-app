@@ -1,0 +1,7 @@
+{
+  "name": "misionari",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

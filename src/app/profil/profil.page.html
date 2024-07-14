@@ -1,0 +1,34 @@
+<ion-content [fullscreen]="true">
+  <form [formGroup]="applyForm" (ngSubmit)="unosProfila()">
+    <img src="assets/logo.jpg" alt="logo">
+
+    <h1>Moji podaci</h1>
+
+    <label for="ime">Ime:</label>
+    <input type="text" id="ime" formControlName="ime">
+
+    <label for="prezime">Prezime:</label>
+    <input type="text" id="prezime" formControlName="prezime">
+
+    <label for="Mobitel">Mobitel:</label>
+    <input type="text" id="mobitel" formControlName="mobitel">
+
+    <label for="E-mail">E-mail:</label>
+    <input type="text" id="E-mail" formControlName="email">
+
+    <label for="adresa">Adresa:</label>
+    <input type="text" id="adresa" formControlName="adresa">
+
+    <br>
+    
+    <button type="submit">Potvrda podataka</button>
+
+  </form>
+
+  <nav>
+    <a (click)="navForm()" [ngClass]="{'active-link': activeLink === 'navForm'}">Unos radnog vremena</a>
+    <a (click)="navProfil()" [ngClass]="{'active-link': activeLink === 'navProfil'}">Moj profil</a>
+    <a (click)="navOdjava()" [ngClass]="{'active-link': activeLink === 'navOdjava'}">Odjava iz sustava</a>
+    </nav>
+
+</ion-content>

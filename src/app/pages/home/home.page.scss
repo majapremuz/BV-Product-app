@@ -1,0 +1,46 @@
+ion-content {
+  --background: #4048c5;
+}
+
+#container {
+  width: 90%;
+  margin: 3rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #ffff;
+  padding: 2rem;
+  border-radius: 5px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+
+input {
+  margin: 1rem auto;
+  width: 100%;
+  color: #616060;
+}
+
+button {
+  background-color: #4048c5;
+  color: #ffff;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 5px;
+  font-weight: 800;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
