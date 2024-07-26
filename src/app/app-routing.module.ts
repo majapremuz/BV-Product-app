@@ -14,12 +14,16 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'form',
-    loadChildren: () => import('./pages/form/form.module').then( m => m.FormPageModule)
+    path: 'hours',
+    loadChildren: () => import('./pages/hours/hours.module').then( m => m.HoursPageModule)
   },
   {
     path: 'profil',
-    loadChildren: () => import('./profil/profil.module').then( m => m.ProfilPageModule)
+    loadChildren: () => import('./pages/profil/profil.module').then( m => m.ProfilPageModule)
+  },
+  {
+    path: 'locations',
+    loadChildren: () => import('./pages/locations/locations.module').then( m => m.LocationsPageModule)
   },
 ];
 

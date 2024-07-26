@@ -1,0 +1,94 @@
+<ion-content [fullscreen]="true">
+  <form [formGroup]="applyForm" (ngSubmit)="unosForme()">
+    <img src="assets/logo.jpg" alt="logo">
+
+    <h1>Trenutni tjedan</h1>
+    <div class="week-container">
+      <a (click)="previousWeek()">Prethodni tjedan</a>
+      <div *ngFor="let day of currentWeek; let i = index">
+        <div>
+          <span>{{ ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'][i] }}</span>
+          <br>
+          <span>{{ day }}</span>
+          <br>
+          <br>
+          ----
+          <br>
+          00.00
+          <br>
+          <a href="/hours/?selectDate(day)={{ selectedDate }}" required (click)="selectDate(day)">Izaberi</a>
+        </div>
+      </div>
+      <a (click)="nextWeek()">Sljedeći tjedan</a>
+    </div>
+
+    <h1>Unos radnog vremena</h1>
+
+      <ion-label position="stacked"><p>Datum:</p></ion-label>
+      <p *ngIf="!selectedDate">Niste izabrali datum</p>
+      <p *ngIf="selectedDate">{{ selectedDate }}</p>
+      <ion-input id="date" type="hidden" name="date" required="" [value]="selectedDate" formControlName="datum"></ion-input>
+
+      <hr>
+
+    <p>Lokacija posla:</p>
+    <select name="location" id="location" formControlName="lokacija">
+      <option value="">AQUAT. - Berliner Quartier</option>
+      <option value="2">Neubert -  Steinerstr. 20</option>
+      <option value="3">AQUAT. - Unterschleißheim</option>
+      <option value="4">VOIT - Landshut</option>
+      <option value="5">VOIT - Bad Aibling</option>
+      <option value="6">VOIT - Hepberg</option>
+      <option value="7">VOIT - JUSTIZ</option>
+      <option value="8">VOIT - BAYERNKASERNER</option>
+      <option value="9">VOIT - BURGHAUSEN</option>
+      <option value="10">HRVATSKA</option>
+    </select>
+
+    <hr>
+
+    <p>Broj radnih sati:</p>
+    <select name="hours" id="hours" formControlName="sati">
+      <option value="">0.5</option>
+      <option value="1">1</option>
+      <option value="1.5">1.5</option>
+      <option value="2">2</option>
+      <option value="2.5">2.5</option>
+      <option value="3">3</option>
+      <option value="3.5">3.5</option>
+      <option value="4">4</option>
+      <option value="4.5">4.5</option>
+      <option value="5">5</option>
+      <option value="5.5">5.5</option>
+      <option value="6">6</option>
+      <option value="6.5">6.5</option>
+      <option value="7">7</option>
+      <option value="7.5">7.5</option>
+      <option value="8">8</option>
+      <option value="8.5">8.5</option>
+      <option value="9">9</option>
+      <option value="9.5">9.5</option>
+      <option value="10">10</option>
+      <option value="10.5">10.5</option>
+      <option value="11">11</option>
+      <option value="11.5">11.5</option>
+      <option value="12">12</option>
+      <option value="12.5">12.5</option>
+      <option value="13">13</option>
+      <option value="13.5">13.5</option>
+      <option value="14">14</option>
+    </select>
+  
+    <button type="submit">Potvrda i slanje</button>
+    
+  </form>
+
+  <nav>
+  <a (click)="navHours()">Unos radnog vremena</a>
+  <a (click)="navLokacija()">Pregled lokacija</a>
+  <a (click)="navProfil()">Moj profil</a>
+  <a (click)="navOdjava()">Odjava iz sustava</a>
+  </nav>
+  
+</ion-content>
+

@@ -23,7 +23,7 @@ export class HomePage {
     const lozinka = this.applyForm.value.lozinka ?? "";
 
     if (korisnik && lozinka) {
-      this.router.navigate(['/form']);
+      this.router.navigate(['/hours']);
     } else {
       console.log('Please enter both username and password');
     }

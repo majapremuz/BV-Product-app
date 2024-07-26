@@ -1,0 +1,96 @@
+<ion-content [fullscreen]="true">
+  
+  <div class="wraper">
+    <form [formGroup]="applyForm" (ngSubmit)="unosForme()">
+      <img src="assets/logo.jpg" alt="logo">
+       <h2>Od: {{ formattedDate1}}</h2>
+      <br>
+      <h2>Do: {{ formattedDate2}}</h2>
+  
+  
+      <ion-item>
+        <ion-label position="stacked">
+          <p>Početak razdoblja:</p>
+          <p>Izaberite datum</p>
+          <br>
+        </ion-label>
+        
+        <ion-input id="date1" [value]="formattedDate1" readonly formControlName="datumStart" required (click)="openPopover($event, 'popover1')" formControlName="početak"></ion-input>
+        <ion-popover trigger="date1">
+          <ng-template>
+            <ion-datetime 
+              presentation="date" 
+              locale="hr-HR" 
+              [firstDayOfWeek]="1" 
+              [highlightedDates]="highlightedDates"
+              (ionChange)="onDateChange($event, 'start')">
+            </ion-datetime>
+          </ng-template>
+        </ion-popover>
+      </ion-item>
+  
+  
+      <ion-item>
+        <ion-label position="stacked">
+          <p>Kraj razdoblja:</p>
+          <p>Izaberite datum</p>
+          <br>
+        </ion-label>
+        
+        <ion-input id="date2" [value]="formattedDate2" readonly formControlName="datumEnd" required (click)="openPopover($event, 'popover2')" formControlName="kraj"></ion-input>
+        <ion-popover trigger="date2">
+          <ng-template>
+            <ion-datetime 
+              presentation="date" 
+              locale="hr-HR" 
+              [firstDayOfWeek]="1" 
+              [highlightedDates]="highlightedDates"
+              (ionChange)="onDateChange($event, 'end')">
+            </ion-datetime>
+          </ng-template>
+        </ion-popover>
+      </ion-item>
+    </form>
+  
+    <button type="submit">Pošalji nove datume</button>
+  
+    <div class="workers">
+      <h2>VOIT Landshut</h2>
+      t - Ivan Horvat
+      <br>
+      <h2>VOIT - JUSTIZ</h2>
+      NINOSLAV OBRADOVIĆ
+      <br>
+      Davor Pilaj
+      <br>
+      SIMON MARTINEC
+      <br>
+      DENIS BLAŽINČIĆ
+      <br>
+      JOSIP DRVENKAR
+      <br>
+      MARIJAN MEKE
+      <br>
+      ŽELJKO ŽGANEC
+      <br>
+      NENAD PINTARIĆ
+      <br>
+      MATIJA LESJAK
+      <br>
+      MARKO NOVAK
+      <br>
+      SILVIO NOVAK
+      <br>
+      t - Ivan Horvat
+    </div>
+  </div>
+  
+
+  <nav>
+    <a (click)="navHours()">Unos radnog vremena</a>
+    <a (click)="navLokacija()">Pregled lokacija</a>
+    <a (click)="navProfil()">Moj profil</a>
+    <a (click)="navOdjava()">Odjava iz sustava</a>
+    </nav>
+    
+</ion-content>
