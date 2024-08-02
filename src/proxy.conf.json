@@ -1,0 +1,9 @@
+{
+    "/api": {
+      "target": "http://bvproduct.virtualka.prolink.hr",
+      "secure": false,
+      "changeOrigin": true,
+      "logLevel": "debug"
+    }
+  }
+  
