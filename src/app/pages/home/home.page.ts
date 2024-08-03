@@ -31,35 +31,31 @@ export class HomePage {
   ) {
   }
 
-
-  prijava() {
+  async prijava() {
     const korisnik = this.applyForm.value.korisnik;
     const lozinka = this.applyForm.value.lozinka;
   
-    if (korisnik && lozinka) {
+    if (this.applyForm.valid && korisnik && lozinka) {
       const hashedUsername = CryptoJS.SHA1(korisnik).toString();
       const hashedPassword = CryptoJS.SHA1(lozinka).toString();
   
       this.http.post<ServerResponse>('/api/login.php', {
-          username: hashedUsername,
-          password: hashedPassword
-      })
-      .subscribe(
-        (response) => {
-          if (response && response.response === 'Success') {
+        username: hashedUsername,
+        password: hashedPassword
+      }).subscribe({
+        next: (response) => {
+          if (response.response === 'Success') {
             this.router.navigate(['/hours']);
           } else {
             this.errorMessage = 'Login failed. Please check your credentials.';
           }
         },
-        (error) => {
+        error: (error) => {
           this.errorMessage = 'An error occurred. Please try again later.';
           console.error('Login failed', error);
         }
-      )
+      });
     }
-  }
-  
-      
+  }   
     
 }
