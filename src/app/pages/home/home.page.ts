@@ -4,6 +4,7 @@ import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/stan
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import * as CryptoJS from 'crypto-js';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface ServerResponse {
   response: string;
@@ -27,7 +28,8 @@ export class HomePage {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {
   }
 
@@ -40,13 +42,14 @@ export class HomePage {
   
   
     if (this.applyForm.valid && korisnik && lozinka) {
-      this.http.post<ServerResponse>('https://bvproduct.virtualka.prolink.hr/api/login.php', {
+      this.http.post<ServerResponse[]>('https://bvproduct.virtualka.prolink.hr/api/login.php', {
         username: hashedUsername,
         password: hashedPassword
       }).subscribe({
         next: (response) => {
-          console.log("Sever response:", response)
-          if (response.response === 'Success') {
+          const serverResponse = response[0];
+          if (serverResponse && serverResponse.response === 'Success') {
+            this.authService.login(korisnik, lozinka);
             this.router.navigate(['/hours']);
           } else {
             this.errorMessage = 'Login failed. Please check your credentials.';

@@ -1,0 +1,1 @@
+ GET https://bvproduct.virtualka.prolink.hr/api/locations.php

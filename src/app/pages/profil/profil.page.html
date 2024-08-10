@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" (ionViewWillEnter)="fetchUserData()">
   <form [formGroup]="applyForm" (ngSubmit)="unosProfila()">
     <img src="assets/logo.jpg" alt="logo">
 
@@ -14,7 +14,7 @@
     <input type="text" id="mobitel" formControlName="mobitel">
 
     <label for="E-mail">E-mail:</label>
-    <input type="text" id="E-mail" formControlName="email">
+    <input type="text" id="email" formControlName="email">
 
     <label for="adresa">Adresa:</label>
     <input type="text" id="adresa" formControlName="adresa">
