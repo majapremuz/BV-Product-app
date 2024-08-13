@@ -33,7 +33,7 @@
 
     <p>Lokacija posla:</p>
     <select name="location" id="location" formControlName="lokacija">
-      <option value="">AQUAT. - Berliner Quartier</option>
+      <!--<option value="">AQUAT. - Berliner Quartier</option>
       <option value="2">Neubert -  Steinerstr. 20</option>
       <option value="3">AQUAT. - Unterschleißheim</option>
       <option value="4">VOIT - Landshut</option>
@@ -42,14 +42,17 @@
       <option value="7">VOIT - JUSTIZ</option>
       <option value="8">VOIT - BAYERNKASERNER</option>
       <option value="9">VOIT - BURGHAUSEN</option>
-      <option value="10">HRVATSKA</option>
+      <option value="10">HRVATSKA</option>-->
+      <option value="" disabled selected>Izaberite lokaciju</option>
+      <option *ngFor="let location of locations"  [value]="location.id">{{ location?.title }}</option>
     </select>
 
     <hr>
 
     <p>Broj radnih sati:</p>
     <select name="hours" id="hours" formControlName="sati">
-      <option value="">0.5</option>
+      <option value="" disabled selected>Izaberite sate</option>
+      <option value="0.5">0.5</option>
       <option value="1">1</option>
       <option value="1.5">1.5</option>
       <option value="2">2</option>
@@ -82,6 +85,10 @@
     <button type="submit">Potvrda i slanje</button>
     
   </form>
+
+  <div *ngIf="formSubmitted && !errorMessage" class="formSend">Podaci su uspješno poslani!</div>
+
+  <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
 
   <nav>
   <a (click)="navHours()">Unos radnog vremena</a>

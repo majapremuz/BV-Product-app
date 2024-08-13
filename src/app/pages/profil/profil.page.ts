@@ -38,6 +38,7 @@ export class ProfilPage implements OnInit {
     obuća: new FormControl("", Validators.required)
   })
 
+  formSubmitted: boolean = false;
   errorMessage: string | null = null;
 
   constructor(
@@ -55,59 +56,83 @@ export class ProfilPage implements OnInit {
     }
   }
 
-async fetchUserData() {
-  const credentials = this.authService.getHashedCredentials();
-  
-  if (!credentials) {
-    this.errorMessage = 'Failed to retrieve credentials.';
-    this.router.navigate(['/home']);
-    return;
-  }
-
-  const authPayload = {
-    username: credentials.hashedUsername,
-    password: credentials.hashedPassword
-  };
-
-  try {
-    const data = await this.http.post<UserProfile[]>('http://bvproduct.virtualka.prolink.hr/api/profil.php', authPayload).toPromise();
-
-    if (data && Array.isArray(data) && data.length > 0 && data[0].response === 'Success') {
-      console.log(data)
-      this.applyForm.patchValue({
-        ime: data[0].name,
-        prezime: data[0].surname,
-        mobitel: data[0].phone,
-        email: data[0].email,
-        adresa: data[0].address,
-        odjeća: data[0].clothes_size,
-        obuća: data[0].footwear_size
-      });
-    } else {
-      this.errorMessage = 'Failed to fetch user data. API returned an unexpected response.';
-      console.error('Failed to fetch user data', data);
+  async fetchUserData() {
+    const credentials = this.authService.getHashedCredentials();
+    
+    if (!credentials) {
+      this.errorMessage = 'Failed to retrieve credentials.';
+      this.router.navigate(['/home']);
+      return;
     }
-  } catch (error) {
-    this.errorMessage = 'An error occurred while fetching user data. Please try again later.';
-    console.error('Error fetching user data', error);
+  
+    const authPayload = {
+      username: credentials.hashedUsername,
+      password: credentials.hashedPassword
+    };
+  
+    try {
+      const data = await this.http.post<UserProfile[]>('https://bvproduct.virtualka.prolink.hr/api/profile.php', authPayload).toPromise();
+  
+      if (data && Array.isArray(data) && data.length > 0 && data[0].response === 'Success') {
+        console.log(data)
+        this.applyForm.patchValue({
+          ime: data[0].name,
+          prezime: data[0].surname,
+          mobitel: data[0].phone,
+          email: data[0].email,
+          adresa: data[0].address,
+          odjeća: data[0].clothes_size,
+          obuća: data[0].footwear_size
+        });
+      } else {
+        this.errorMessage = 'Failed to fetch user data. API returned an unexpected response.';
+        console.error('Failed to fetch user data', data);
+      }
+    } catch (error) {
+      this.errorMessage = 'An error occurred while fetching user data. Please try again later.';
+      console.error('Error fetching user data', error);
+    }
   }
-}
-
-
+  
+  
   unosProfila() {
     if (this.applyForm.valid) {
-      const formData = this.applyForm.value;
-      this.http.post('https://bvproduct.virtualka.prolink.hr/api/update-profile.php', formData).subscribe(response => {
-        console.log('Form successfully submitted', response);
-      }, error => {
-        console.error('Error submitting form', error);
+        const formData = this.applyForm.value;
+        const username = this.authService.getUsername();
+        const password = this.authService.getPassword();
+        console.log(formData, username, password)
+  
+      if (!username || !password) {
+        this.errorMessage = 'Failed to retrieve credentials.';
+        return;
+      }
+  
+      const payload = {
+        ...formData,
+        username: username,
+        password: password,
+      };
+
+      console.log(payload)
+
+      const headers = { 'Content-Type': 'application/json' };
+
+       this.http.post('https://bvproduct.virtualka.prolink.hr/api/profile-update.php', payload, { headers })
+       .subscribe(response => {
+        this.formSubmitted = true;
+        this.errorMessage = null;
+        console.log('Obrazac uspješno poslan', response);
+       }, error => {
+        this.formSubmitted = true;
+        this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+        console.error('Greška kod slanja obrasca', error);
       });
     } else {
-      console.warn('Form is not valid');
-    }
+      this.formSubmitted = true;
+      this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+      console.warn('Obrasac nije ispravan');
+      }
   }
-  
-  
 
   navHours() {
     this.router.navigateByUrl('/hours');

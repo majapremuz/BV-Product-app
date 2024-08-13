@@ -6,6 +6,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';
+
 
 @Component({
   selector: 'app-locations',
@@ -24,10 +26,14 @@ export class LocationsPage implements OnInit {
     kraj: new FormControl("", Validators.required)
   })
 
+  formSubmitted: boolean = false;
+  errorMessage: string | null = null;
+
   constructor(
     private router: Router,
     private navCtrl: NavController,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -67,9 +73,11 @@ export class LocationsPage implements OnInit {
     if (type === 'start') {
       this.selectedDateStart = selectedDate;
       this.formattedDate1 = formattedDate;
+      this.applyForm.patchValue({ početak: formattedDate });
     } else if (type === 'end') {
       this.selectedDateEnd = selectedDate;
       this.formattedDate2 = formattedDate;
+      this.applyForm.patchValue({ kraj: formattedDate });
     }
   }
 
@@ -98,17 +106,45 @@ export class LocationsPage implements OnInit {
     this.router.navigateByUrl('/home');
   }
 
-  unosForme() {
-    if (this.applyForm.valid) {
-      const formData = this.applyForm.value;
-      this.http.post('url', formData).subscribe(response => {
-        console.log('Form successfully submitted', response);
-      }, error => {
-        console.error('Error submitting form', error);
-      });
-    } else {
-      console.warn('Form is not valid');
-    }
-  }
-
+      unosForme() {
+        if (this.applyForm.valid) {
+          const formData = this.applyForm.value;
+          const username = this.authService.getUsername();
+          const password = this.authService.getPassword();
+          console.log(formData, username, password)
+    
+          if (!username || !password) {
+            this.errorMessage = 'Failed to retrieve credentials.';
+            console.error(this.errorMessage);
+            return;
+          }
+    
+          const payload = {
+            ...formData,
+            username: username,
+            password: password,
+          };
+    
+          const headers = { 'Content-Type': 'application/json' };
+    
+          this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours.php', payload, { headers })
+            .subscribe({
+              next: response => {
+                this.formSubmitted = true;
+                this.errorMessage = null;
+                console.log('Obrazac uspješno poslan', response);
+              },
+              error: error => {
+                this.formSubmitted = true;
+                this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+                console.error('Greška kod slanja obrasca', error);
+              }
+            });
+        } else {
+          this.formSubmitted = true;
+          this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+          console.warn('Obrasac nije ispravan');
+        }
+      }
+      
 }

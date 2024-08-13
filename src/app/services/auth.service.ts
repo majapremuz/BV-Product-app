@@ -9,6 +9,7 @@ export class AuthService {
   private isLoggedIn: boolean = false;
 
   constructor() {
+    // Initialize isLoggedIn state from localStorage
     this.isLoggedIn = !!localStorage.getItem('username') && !!localStorage.getItem('password');
   }
 

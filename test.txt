@@ -1,1 +1,1 @@
- GET https://bvproduct.virtualka.prolink.hr/api/locations.php
+ https://bvproduct.virtualka.prolink.hr/api/profile-update.php

@@ -31,6 +31,10 @@
 
   </form>
 
+  <div *ngIf="formSubmitted && !errorMessage" class="formSend">Podaci su uspješno poslani!</div>
+
+  <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
+  
   <nav>
     <a (click)="navHours()">Unos radnog vremena</a>
     <a (click)="navLokacija()">Pregled lokacija</a>

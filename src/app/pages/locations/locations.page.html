@@ -15,7 +15,7 @@
           <br>
         </ion-label>
         
-        <ion-input id="date1" [value]="formattedDate1" readonly formControlName="datumStart" required (click)="openPopover($event, 'popover1')" formControlName="početak"></ion-input>
+        <ion-input id="date1" [value]="formattedDate1" readonly formControlName="početak" required (click)="openPopover($event, 'popover1')" formControlName="početak"></ion-input>
         <ion-popover trigger="date1">
           <ng-template>
             <ion-datetime 
@@ -37,7 +37,7 @@
           <br>
         </ion-label>
         
-        <ion-input id="date2" [value]="formattedDate2" readonly formControlName="datumEnd" required (click)="openPopover($event, 'popover2')" formControlName="kraj"></ion-input>
+        <ion-input id="date2" [value]="formattedDate2" readonly formControlName="kraj" required (click)="openPopover($event, 'popover2')" formControlName="kraj"></ion-input>
         <ion-popover trigger="date2">
           <ng-template>
             <ion-datetime 
@@ -50,9 +50,13 @@
           </ng-template>
         </ion-popover>
       </ion-item>
-    </form>
-  
     <button type="submit">Pošalji nove datume</button>
+    </form>
+
+    <div *ngIf="formSubmitted && !errorMessage" class="formSend">Podaci su uspješno poslani!</div>
+
+    <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
+  
   
     <div class="workers">
       <h2>VOIT Landshut</h2>
