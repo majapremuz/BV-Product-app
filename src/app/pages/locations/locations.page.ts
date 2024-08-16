@@ -109,11 +109,9 @@ export class LocationsPage implements OnInit {
       unosForme() {
         if (this.applyForm.valid) {
           const formData = this.applyForm.value;
-          const username = this.authService.getUsername();
-          const password = this.authService.getPassword();
-          console.log(formData, username, password)
+          const credentials = this.authService.getHashedCredentials();
     
-          if (!username || !password) {
+          if (!credentials) {
             this.errorMessage = 'Failed to retrieve credentials.';
             console.error(this.errorMessage);
             return;
@@ -121,8 +119,8 @@ export class LocationsPage implements OnInit {
     
           const payload = {
             ...formData,
-            username: username,
-            password: password,
+            username: credentials.hashedUsername,
+            password: credentials.hashedPassword,
           };
     
           const headers = { 'Content-Type': 'application/json' };

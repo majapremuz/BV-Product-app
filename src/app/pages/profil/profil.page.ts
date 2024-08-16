@@ -94,45 +94,41 @@ export class ProfilPage implements OnInit {
     }
   }
   
-  
-  unosProfila() {
-    if (this.applyForm.valid) {
-        const formData = this.applyForm.value;
-        const username = this.authService.getUsername();
-        const password = this.authService.getPassword();
-        console.log(formData, username, password)
-  
-      if (!username || !password) {
-        this.errorMessage = 'Failed to retrieve credentials.';
-        return;
+      unosProfila() {
+        if (this.applyForm.valid) {
+            const formData = this.applyForm.value;
+            const credentials = this.authService.getHashedCredentials();
+      
+          if (!credentials) {
+            this.errorMessage = 'Failed to retrieve credentials.';
+            return;
+          }
+      
+          const payload = {
+            ...formData,
+            username: credentials.hashedUsername,
+            password: credentials.hashedPassword,
+          };
+    
+          const headers = { 'Content-Type': 'application/json' };
+    
+           this.http.post('https://bvproduct.virtualka.prolink.hr/api/profile-update.php', payload, { headers })
+           .subscribe(response => {
+            this.formSubmitted = true;
+            this.errorMessage = null;
+            console.log('Obrazac uspješno poslan', response);
+           }, error => {
+            this.formSubmitted = true;
+            this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+            console.error('Greška kod slanja obrasca', error);
+          });
+        } else {
+          this.formSubmitted = true;
+          this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+          console.warn('Obrasac nije ispravan');
+          }
       }
-  
-      const payload = {
-        ...formData,
-        username: username,
-        password: password,
-      };
-
-      console.log(payload)
-
-      const headers = { 'Content-Type': 'application/json' };
-
-       this.http.post('https://bvproduct.virtualka.prolink.hr/api/profile-update.php', payload, { headers })
-       .subscribe(response => {
-        this.formSubmitted = true;
-        this.errorMessage = null;
-        console.log('Obrazac uspješno poslan', response);
-       }, error => {
-        this.formSubmitted = true;
-        this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-        console.error('Greška kod slanja obrasca', error);
-      });
-    } else {
-      this.formSubmitted = true;
-      this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-      console.warn('Obrasac nije ispravan');
-      }
-  }
+    
 
   navHours() {
     this.router.navigateByUrl('/hours');

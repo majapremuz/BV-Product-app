@@ -27,6 +27,7 @@ interface Location {
 export class HoursPage implements OnInit {
   currentWeek: string[] = [];
   selectedDate: string | null = null;
+  hoursByDate: { [key: string]: { hours: number[], sum: number } } = {};
   applyForm= new FormGroup ({
     lokacija: new FormControl("", Validators.required),
     datum: new FormControl("", Validators.required),
@@ -54,6 +55,7 @@ export class HoursPage implements OnInit {
     }
     this.setCurrentWeek();
     this.loadSelectedDate();
+    this.loadHoursByDate();
   }
 
   selectDate(datum: string) {
@@ -61,6 +63,33 @@ export class HoursPage implements OnInit {
     this.selectedDate = formattedDate;
     this.applyForm.patchValue({ datum: formattedDate });
     this.saveSelectedDate(formattedDate);
+  }
+
+  addHours() {
+    const selectedDate = this.selectedDate;
+    const selectedHours = parseFloat(this.applyForm.get('sati')?.value || '0');
+    console.log(selectedHours)
+
+    if (selectedDate && selectedHours) {
+      const formattedDate = moment(selectedDate, 'YYYY-MM-DD').format('DD.MM.YYYY');
+      
+      if (!this.hoursByDate[formattedDate]) {
+        this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
+      }
+      
+      this.hoursByDate[formattedDate].hours.push(selectedHours);
+      this.hoursByDate[formattedDate].sum += selectedHours;
+      
+      this.applyForm.get('sati')?.reset();
+      
+      this.cdr.markForCheck();
+
+      this.saveHoursByDate();
+
+      this.applyForm.get('sati')?.reset();
+    
+    this.cdr.markForCheck();
+    }
   }
 
   setCurrentWeek(weekOffset = 0) {
@@ -84,6 +113,19 @@ export class HoursPage implements OnInit {
 
   private saveSelectedDate(date: string) {
     localStorage.setItem('selectedDate', date);
+  }
+
+  private saveHoursByDate() {
+    localStorage.setItem('hoursByDate', JSON.stringify(this.hoursByDate));
+  }
+  
+  // Load hoursByDate from localStorage
+  private loadHoursByDate() {
+    const savedHours = localStorage.getItem('hoursByDate');
+    if (savedHours) {
+      this.hoursByDate = JSON.parse(savedHours);
+      this.cdr.markForCheck(); // Ensure the view is updated after loading the data
+    }
   }
 
   private loadSelectedDate() {
@@ -143,70 +185,29 @@ export class HoursPage implements OnInit {
     this.router.navigateByUrl('/home');
   }
 
-  /*unosForme() {
-    this.formSubmitted = false;
-    
-    if (this.applyForm.valid) {
-      const formData = this.applyForm.value;
-      const username = this.authService.getUsername();
-      const password = this.authService.getPassword();
-      console.log(formData, username, password)
-
-      if (!username || !password) {
-        this.errorMessage = 'Failed to retrieve credentials.';
-        console.error(this.errorMessage);
-        return;
-      }
-
-      const payload = {
-        username: username,
-        password: password,
-        ...formData
-      };
-
-      const headers = { 'Content-Type': 'application/json' };
-
-      this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours-add.php', payload, { headers })
-        .subscribe({
-          next: response => {
-            this.formSubmitted = true;
-            this.errorMessage = null;
-            console.log('Obrazac uspješno poslan', response);
-          },
-          error: error => {
-            this.formSubmitted = true;
-            this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-            console.error('Greška kod slanja obrasca', error);
-          }
-        });
-    } else {
-      this.formSubmitted = true;
-      this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-      console.warn('Obrasac nije ispravan');
-    }
-  }*/
-
     unosForme() {
-      this.formSubmitted = false;  // Reset before submission
+      this.formSubmitted = false;
     
       if (this.applyForm.valid) {
         const formData = this.applyForm.value;
-        const username = this.authService.getUsername();
-        const password = this.authService.getPassword();
+        const credentials = this.authService.getHashedCredentials();
+
     
-        if (!username || !password) {
+        if (!credentials) {
           this.errorMessage = 'Failed to retrieve credentials.';
           console.error(this.errorMessage);
           return;
         }
     
         const payload = {
-          username: username,
-          password: password,
-          ...formData
+          ...formData,
+          username: credentials.hashedUsername,
+          password: credentials.hashedPassword,
         };
     
         const headers = { 'Content-Type': 'application/json' };
+
+        this.addHours();
     
         this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours-add.php', payload, { headers })
           .subscribe({
@@ -214,20 +215,20 @@ export class HoursPage implements OnInit {
               this.formSubmitted = true;
               this.errorMessage = null;
               console.log('Obrazac uspješno poslan', response);
-              this.cdr.detectChanges();  // Trigger change detection
+              this.cdr.detectChanges();
             },
             error: error => {
               this.formSubmitted = true;
               this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
               console.error('Greška kod slanja obrasca', error);
-              this.cdr.detectChanges();  // Trigger change detection
+              this.cdr.detectChanges();
             }
           });
       } else {
         this.formSubmitted = true;
         this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
         console.warn('Obrasac nije ispravan');
-        this.cdr.detectChanges();  // Trigger change detection
+        this.cdr.detectChanges();
       }
     }
     

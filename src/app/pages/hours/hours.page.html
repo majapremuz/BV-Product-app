@@ -1,25 +1,41 @@
 <ion-content [fullscreen]="true">
   <form [formGroup]="applyForm" (ngSubmit)="unosForme()">
-    <img src="assets/logo.jpg" alt="logo">
-
-    <h1>Trenutni tjedan</h1>
     <div class="week-container">
-      <a (click)="previousWeek()">Prethodni tjedan</a>
+
+      <div class="prev-next-div">
+        <button (click)="previousWeek()" class="prevBtn">Prethodni tjedan</button>
+        <button (click)="nextWeek()" class="nextBtn">Sljedeći tjedan</button>
+      </div>
+      
       <div *ngFor="let day of currentWeek; let i = index">
-        <div>
+        <div class="days">
+
+          <div class="day">
           <span>{{ ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'][i] }}</span>
-          <br>
           <span>{{ day }}</span>
-          <br>
-          <br>
-          ----
-          <br>
-          00.00
-          <br>
-          <a href="/hours/?selectDate(day)={{ selectedDate }}" required (click)="selectDate(day)">Izaberi</a>
+          </div>
+    
+
+          <div class="hours">
+
+            <div class="sum">
+            <p>Ukupno:</p>
+            </div>
+
+            <div class="hour">
+              <span *ngFor="let hour of hoursByDate[day]?.hours">
+                {{ hour }}
+              </span>
+            <p>{{ hoursByDate[day]?.sum || 0 }}</p>
+            </div>
+             
+          </div>
+
+          <button (click)="selectDate(day)" class="izaberiBtn">Izaberi datum</button>
+
+
         </div>
       </div>
-      <a (click)="nextWeek()">Sljedeći tjedan</a>
     </div>
 
     <h1>Unos radnog vremena</h1>
@@ -33,16 +49,6 @@
 
     <p>Lokacija posla:</p>
     <select name="location" id="location" formControlName="lokacija">
-      <!--<option value="">AQUAT. - Berliner Quartier</option>
-      <option value="2">Neubert -  Steinerstr. 20</option>
-      <option value="3">AQUAT. - Unterschleißheim</option>
-      <option value="4">VOIT - Landshut</option>
-      <option value="5">VOIT - Bad Aibling</option>
-      <option value="6">VOIT - Hepberg</option>
-      <option value="7">VOIT - JUSTIZ</option>
-      <option value="8">VOIT - BAYERNKASERNER</option>
-      <option value="9">VOIT - BURGHAUSEN</option>
-      <option value="10">HRVATSKA</option>-->
       <option value="" disabled selected>Izaberite lokaciju</option>
       <option *ngFor="let location of locations"  [value]="location.id">{{ location?.title }}</option>
     </select>
@@ -82,7 +88,7 @@
       <option value="14">14</option>
     </select>
   
-    <button type="submit">Potvrda i slanje</button>
+    <button type="submit" class="submitBtn">UNESI</button>
     
   </form>
 
