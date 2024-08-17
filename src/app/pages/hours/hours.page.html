@@ -47,6 +47,14 @@
 
       <hr>
 
+      <p>Vrsta unosa:</p>
+    <select name="type" id="type" formControlName="vrsta">
+      <option value="" disabled selected>Izaberite vrstu unosa</option>
+      <option *ngFor="let type of types"  [value]="type.id">{{ type?.title }}</option>
+    </select>
+
+    <hr>
+
     <p>Lokacija posla:</p>
     <select name="location" id="location" formControlName="lokacija">
       <option value="" disabled selected>Izaberite lokaciju</option>

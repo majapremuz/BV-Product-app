@@ -16,6 +16,11 @@ interface Location {
   title: string;
 }
 
+interface Types {
+  id: string;
+  title: string;
+}
+
 @Component({
   selector: 'app-hours',
   templateUrl: './hours.page.html',
@@ -29,6 +34,7 @@ export class HoursPage implements OnInit {
   selectedDate: string | null = null;
   hoursByDate: { [key: string]: { hours: number[], sum: number } } = {};
   applyForm= new FormGroup ({
+    vrsta: new FormControl("", Validators.required),
     lokacija: new FormControl("", Validators.required),
     datum: new FormControl("", Validators.required),
     sati: new FormControl("", Validators.required)
@@ -37,6 +43,7 @@ export class HoursPage implements OnInit {
   formSubmitted: boolean = false;
   errorMessage: string | null = null;
   locations: Location[] = [];
+  types: Types[] = [];
 
 
   constructor(
@@ -50,6 +57,7 @@ export class HoursPage implements OnInit {
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.loadLocations();
+      this.loadTypes();
     } else {
       this.router.navigate(['/home']);
     }
@@ -169,20 +177,37 @@ export class HoursPage implements OnInit {
     }
   }
 
-  navHours() {
-    this.router.navigateByUrl('/hours');
-  }
-
-  navLokacija() {
-    this.router.navigateByUrl('/locations');
-  }
-
-  navProfil() {
-    this.router.navigateByUrl('/profil');
-  }
-
-  navOdjava() {
-    this.router.navigateByUrl('/home');
+  async loadTypes() {
+    const credentials = this.authService.getHashedCredentials();
+    
+    if (!credentials) {
+      this.errorMessage = 'Failed to retrieve credentials.';
+      this.router.navigate(['/home']);
+      return;
+    }
+    
+    const authPayload = {
+      username: credentials.hashedUsername,
+      password: credentials.hashedPassword
+    };
+    
+    try {
+      this.http.post<Types[]>('https://bvproduct.virtualka.prolink.hr/api/type.php', authPayload)
+        .subscribe({
+          next: (response) => {
+            this.types = response;
+            console.log(this.types);
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
+            console.error('Error loading locations', error);
+            this.errorMessage = 'Failed to load locations. Please try again later.';
+          }
+        });
+    } catch (error) {
+      console.error('Unexpected error', error);
+      this.errorMessage = 'An unexpected error occurred. Please try again later.';
+    }
   }
 
     unosForme() {
@@ -232,4 +257,20 @@ export class HoursPage implements OnInit {
       }
     }
     
+    navHours() {
+      this.router.navigateByUrl('/hours');
+    }
+  
+    navLokacija() {
+      this.router.navigateByUrl('/locations');
+    }
+  
+    navProfil() {
+      this.router.navigateByUrl('/profil');
+    }
+  
+    navOdjava() {
+      this.router.navigateByUrl('/home');
+    }
+  
 }
