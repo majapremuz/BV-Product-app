@@ -6,7 +6,9 @@ import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators  } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
+
 
 interface UserProfile {
   response: string;
@@ -28,6 +30,7 @@ interface UserProfile {
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class ProfilPage implements OnInit {
+  currentPage: string = 'profil';
   applyForm= new FormGroup ({
     ime: new FormControl("", Validators.required),
     prezime: new FormControl("", Validators.required),
@@ -45,7 +48,8 @@ export class ProfilPage implements OnInit {
     private router: Router,
     private navCtrl: NavController,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -131,6 +135,8 @@ export class ProfilPage implements OnInit {
     
 
   navHours() {
+    this.currentPage = 'hours';
+    this.cdr.detectChanges();
     this.router.navigateByUrl('/hours');
   }
 
@@ -139,10 +145,14 @@ export class ProfilPage implements OnInit {
   }
 
   navProfil() {
+    this.currentPage = 'profil';
+    this.cdr.detectChanges();
     this.router.navigateByUrl('/profil');
   }
 
   navOdjava() {
+    this.currentPage = 'home';
+    this.cdr.detectChanges();
     this.router.navigateByUrl('/home');
   }
 

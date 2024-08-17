@@ -105,10 +105,15 @@
   <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
 
   <nav>
-  <a (click)="navHours()">Unos radnog vremena</a>
-  <a (click)="navLokacija()">Pregled lokacija</a>
-  <a (click)="navProfil()">Moj profil</a>
-  <a (click)="navOdjava()">Odjava iz sustava</a>
+  <a (click)="navHours()" [ngClass]="{'active-nav': currentPage === 'hours'}">
+    <img src="assets/hours_icon.png" alt="hours icon">
+  </a>
+  <a (click)="navProfil()" [ngClass]="{'active-nav': currentPage === 'profil'}">
+    <img src="assets/profil_icon.png" alt="profil icon">
+  </a>
+  <a (click)="navOdjava()" [ngClass]="{'active-nav': currentPage === 'odjava'}">
+    <img src="assets/odjava_icon.png" alt="odjava icon">
+  </a>
   </nav>
   
 </ion-content>

@@ -1,14 +1,14 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { NavController } from '@ionic/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
 import * as moment from 'moment';
-import { ChangeDetectorRef } from '@angular/core';
 
 
 interface Location {
@@ -30,6 +30,7 @@ interface Types {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HoursPage implements OnInit {
+  currentPage: string = 'hours';
   currentWeek: string[] = [];
   selectedDate: string | null = null;
   hoursByDate: { [key: string]: { hours: number[], sum: number } } = {};
@@ -54,17 +55,60 @@ export class HoursPage implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  /*ngOnInit() {
+    this.router.events.pipe(
+      // Filter to only include NavigationEnd events
+      filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      // Check the current URL to determine the current page
+      if (event.url.includes('hours')) {
+        this.currentPage = 'hours';
+      } else if (event.url.includes('profil')) {
+        this.currentPage = 'profil';
+      } else if (event.url.includes('home')) {
+        this.currentPage = 'odjava';
+      }
+  
+      // Ensure view updates
+      this.cdr.detectChanges();
+    });
+  
+    // Check if the user is authenticated, then load locations and types
     if (this.authService.isAuthenticated()) {
       this.loadLocations();
       this.loadTypes();
     } else {
+      // If not authenticated, redirect to the home page
       this.router.navigate(['/home']);
     }
-    this.setCurrentWeek();
-    this.loadSelectedDate();
-    this.loadHoursByDate();
-  }
+  }*/
+
+    ngOnInit() {
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe((event: NavigationEnd) => {
+        // Set currentPage based on the URL
+        if (event.url.includes('hours')) {
+          this.currentPage = 'hours';
+        } else if (event.url.includes('profil')) {
+          this.currentPage = 'profil';
+        } else if (event.url.includes('home')) {
+          this.currentPage = 'odjava';
+        }
+    
+        // Ensure view updates
+        this.cdr.detectChanges();
+      });
+    
+      if (this.authService.isAuthenticated()) {
+        this.loadLocations();
+        this.loadTypes();
+      } else {
+        this.router.navigate(['/home']);
+      }
+    }
+  
+  
 
   selectDate(datum: string) {
     const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
