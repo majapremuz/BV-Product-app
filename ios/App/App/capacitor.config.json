@@ -1,0 +1,12 @@
+{
+	"appId": "com.prolink.bvproduct",
+	"appName": "bvproduct",
+	"webDir": "www",
+	"packageClassList": [
+		"AppPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"SplashScreenPlugin",
+		"StatusBarPlugin"
+	]
+}

@@ -53,14 +53,10 @@ export class HoursPage implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
-
-  /*ngOnInit() {
+  ) {
     this.router.events.pipe(
-      // Filter to only include NavigationEnd events
-      filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      // Check the current URL to determine the current page
       if (event.url.includes('hours')) {
         this.currentPage = 'hours';
       } else if (event.url.includes('profil')) {
@@ -69,47 +65,22 @@ export class HoursPage implements OnInit {
         this.currentPage = 'odjava';
       }
   
-      // Ensure view updates
       this.cdr.detectChanges();
     });
-  
-    // Check if the user is authenticated, then load locations and types
+  }
+
+  ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.loadLocations();
       this.loadTypes();
     } else {
-      // If not authenticated, redirect to the home page
       this.router.navigate(['/home']);
     }
-  }*/
-
-    ngOnInit() {
-      this.router.events.pipe(
-        filter(event => event instanceof NavigationEnd)
-      ).subscribe((event: NavigationEnd) => {
-        // Set currentPage based on the URL
-        if (event.url.includes('hours')) {
-          this.currentPage = 'hours';
-        } else if (event.url.includes('profil')) {
-          this.currentPage = 'profil';
-        } else if (event.url.includes('home')) {
-          this.currentPage = 'odjava';
-        }
-    
-        // Ensure view updates
-        this.cdr.detectChanges();
-      });
-    
-      if (this.authService.isAuthenticated()) {
-        this.loadLocations();
-        this.loadTypes();
-      } else {
-        this.router.navigate(['/home']);
-      }
-    }
+    this.setCurrentWeek();
+    this.loadSelectedDate();
+    this.loadHoursByDate();
+  }
   
-  
-
   selectDate(datum: string) {
     const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
     this.selectedDate = formattedDate;
