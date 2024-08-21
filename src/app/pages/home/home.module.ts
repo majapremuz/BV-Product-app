@@ -7,6 +7,8 @@ import { HomePage } from './home.page';
 import { HomePageRoutingModule } from './home-routing.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { ComponentsModule } from '../../components/components.module';
+import { DarkModeComponent } from 'src/app/components/dark-mode/dark-mode.component';
+
 
 @NgModule({
   imports: [
@@ -17,7 +19,8 @@ import { ComponentsModule } from '../../components/components.module';
     HomePageRoutingModule,
     TranslateModule,
     ComponentsModule,
-    HomePage
+    HomePage,
+    DarkModeComponent
   ],
   declarations: []
 })

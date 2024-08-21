@@ -31,6 +31,7 @@ h1 {
 label {
     margin: -2px;
     font-size: 0.875rem;
+    padding-top: 0.5rem;
 }
 
 input {
@@ -42,8 +43,29 @@ input {
     border-radius: 5px;
 }
 
+.birthday-container {
+    display: flex;
+    /*justify-content: center;
+    align-items: center;*/
+    flex-direction: row;
+}
+
+.birthday {
+    display: flex;
+    /*justify-content: space-around;
+    align-items: center;*/
+    flex-direction: column;
+}
+
+#godina,
+#mjesec,
+#dan {
+    width: 70px;
+    height: 30px;
+}
+
 button, .formSend {
-    background-color: #4048c5;
+    background-color: #009300;
     color: #fff;
     width: 103%;
     padding: 1.2em 0;
@@ -57,21 +79,36 @@ button, .formSend {
     margin: 2rem 0;
 }
 
+.formSend {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+}
+
+.formSend.success {
+    background-color: #009300;
+  }
+  
+  .formSend.error {
+    background-color: #ff0000;
+  }
+
 nav {
     width: 100%;
+    height: 15vmin;
     background-color: #000093;
     color: #ffff;
     font-weight: 900;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 0.5rem;
     position: fixed;
     bottom: 0;
     box-shadow: 0px 3px 17px 0px rgba(0,0,0,0.75);
 }
 
 nav a img{
-   height: 12vmin;
+   height: 9vmin;
    margin: 1rem 2rem;
    filter: invert(100%) sepia(4%) saturate(6%) hue-rotate(211deg) brightness(104%) contrast(100%);
 }
@@ -80,4 +117,7 @@ nav a img{
     border-bottom: 5px solid #000000;
 }
 
+.space {
+    height: 30vmin;
+}
 

@@ -10,7 +10,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
 import * as moment from 'moment';
 
-
 interface Location {
   id: string;
   title: string;

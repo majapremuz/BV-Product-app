@@ -1,4 +1,7 @@
 <ion-content [fullscreen]="true">
+
+  <img src="assets/title image.png" alt="title image" class="title-img">
+  
   <form [formGroup]="applyForm" (ngSubmit)="unosForme()">
     <div class="week-container">
 
@@ -40,7 +43,7 @@
 
     <h1>Unos radnog vremena</h1>
 
-      <ion-label position="stacked"><p>Datum:</p></ion-label>
+      <ion-label position="stacked"><p class="datum">Datum:</p></ion-label>
       <p *ngIf="!selectedDate">Niste izabrali datum</p>
       <p *ngIf="selectedDate">{{ selectedDate }}</p>
       <ion-input id="date" type="hidden" name="date" required="" [value]="selectedDate" formControlName="datum"></ion-input>
@@ -100,9 +103,15 @@
     
   </form>
 
-  <div *ngIf="formSubmitted && !errorMessage" class="formSend">Podaci su uspješno poslani!</div>
+  <div *ngIf="formSubmitted && !errorMessage" class="formSend sucess">Podaci su uspješno poslani!</div>
 
-  <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage" class="formSend error">{{ errorMessage }}</div>
+
+  <img src="assets/certification-removebg.png" alt="certifikacije" class="certification-img">
+
+
+  <div class="space"></div>
+
 
   <nav>
   <a (click)="navHours()" [ngClass]="{'active-nav': currentPage === 'hours'}">

@@ -16,7 +16,7 @@ import { HoursPage } from './hours.page';
     IonicModule,
     HttpClientModule,
     HoursPageRoutingModule,
-    HoursPage
+    HoursPage,
   ],
   declarations: []
 })

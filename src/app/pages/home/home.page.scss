@@ -28,13 +28,16 @@ form {
   width: 100%;
 }
 
-input {
+input[type="text"],
+input[type="password"] {
   margin: 0.8rem auto;
   width: 100%;
   color: #333;
   font-size: 0.95rem;
   padding: 0.15rem;
+  background-color: #fff;
 }
+
 
 button {
   background-color: #4048c5;

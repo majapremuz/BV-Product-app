@@ -6,6 +6,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 
 
@@ -17,6 +18,7 @@ import { AuthService } from 'src/app/services/auth.service';
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class LocationsPage implements OnInit {
+  currentPage: string = 'locations';
   selectedDateStart: string = '';
   selectedDateEnd: string = '';
   formattedDate1: string = '';
@@ -33,7 +35,8 @@ export class LocationsPage implements OnInit {
     private router: Router,
     private navCtrl: NavController,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -90,59 +93,65 @@ export class LocationsPage implements OnInit {
     }
   }
 
-  navHours() {
-    this.router.navigateByUrl('/hours');
-  }
+unosForme() {
+  if (this.applyForm.valid) {
+    const formData = this.applyForm.value;
+    const credentials = this.authService.getHashedCredentials();
 
-  navLokacija() {
-    this.router.navigateByUrl('/locations');
-  }
+    if (!credentials) {
+      this.errorMessage = 'Failed to retrieve credentials.';
+      console.error(this.errorMessage);
+      return;
+    }
 
-  navProfil() {
-    this.router.navigateByUrl('/profil');
-  }
+    const payload = {
+      ...formData,
+      username: credentials.hashedUsername,
+      password: credentials.hashedPassword,
+    };
 
-  navOdjava() {
-    this.router.navigateByUrl('/home');
-  }
+    const headers = { 'Content-Type': 'application/json' };
 
-      unosForme() {
-        if (this.applyForm.valid) {
-          const formData = this.applyForm.value;
-          const credentials = this.authService.getHashedCredentials();
-    
-          if (!credentials) {
-            this.errorMessage = 'Failed to retrieve credentials.';
-            console.error(this.errorMessage);
-            return;
-          }
-    
-          const payload = {
-            ...formData,
-            username: credentials.hashedUsername,
-            password: credentials.hashedPassword,
-          };
-    
-          const headers = { 'Content-Type': 'application/json' };
-    
-          this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours.php', payload, { headers })
-            .subscribe({
-              next: response => {
-                this.formSubmitted = true;
-                this.errorMessage = null;
-                console.log('Obrazac uspješno poslan', response);
-              },
-              error: error => {
-                this.formSubmitted = true;
-                this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-                console.error('Greška kod slanja obrasca', error);
-              }
-            });
-        } else {
+    this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours.php', payload, { headers })
+      .subscribe({
+        next: response => {
           this.formSubmitted = true;
-          this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-          console.warn('Obrasac nije ispravan');
+          this.errorMessage = null;
+          console.log('Obrazac uspješno poslan', response);
+        },
+        error: error => {
+          this.formSubmitted = true;
+          this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+          console.error('Greška kod slanja obrasca', error);
         }
-      }
+      });
+  } else {
+    this.formSubmitted = true;
+    this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+    console.warn('Obrasac nije ispravan');
+  }
+}
+
+navHours() {
+  this.currentPage = 'hours';
+  this.cdr.detectChanges();
+  this.router.navigateByUrl('/hours');
+}
+
+navLokacija() {
+  this.router.navigateByUrl('/locations');
+}
+
+navProfil() {
+  this.currentPage = 'profil';
+  this.cdr.detectChanges();
+  this.router.navigateByUrl('/profil');
+}
+
+navOdjava() {
+  this.currentPage = 'home';
+  this.cdr.detectChanges();
+  this.router.navigateByUrl('/home');
+}
       
 }

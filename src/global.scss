@@ -35,3 +35,23 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+body.dark {
+    --ion-background-color: #121212;
+    --ion-text-color: #ffffff;
+  }
+
+
+  body.dark .title-img {
+    filter: invert(100%) sepia(1%) saturate(0%) hue-rotate(269deg) brightness(113%)
+  }
+
+
+  body.dark .sc-ion-label-md-s >p {
+    color: white;
+  }
+
+  body.dark input[type="text"],
+  body.dark input[type="password"] {
+    background-color: #fff;
+  }

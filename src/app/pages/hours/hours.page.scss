@@ -1,7 +1,15 @@
-ion-content {
+body.dark ion-content {
     --background: #fff;
      font-family: 'Poppins', sans-serif;
      line-height: 1.42857143;
+     padding-bottom: 50px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+body.dark .title-img,
+.certification-img {
+    padding: 1rem;
 }
 
 form,
@@ -32,7 +40,7 @@ form,
     color: #ffffff;
     font-weight: 900;
     font-size: 0.6rem;
-    margin: 1rem;
+    margin: 1.5rem;
     padding: 0.5rem 2rem;
     border-radius: 5px;
     white-space: nowrap;
@@ -53,6 +61,7 @@ form,
     display: flex;
     justify-content: space-evenly;
     align-items: stretch;
+    color: black;
     background-color: #ebebeb;
     margin: 1.2rem auto;
     border-radius: 5px;
@@ -113,7 +122,7 @@ ion-input {
     padding: 0.3rem;
 }
 
-.sc-ion-label-md-s >p {
+.datum {
     color: var(--ion-color-step-600, var(--ion-text-color-step-400, black));
     font-size: 1.2rem;
 }
@@ -137,8 +146,22 @@ ion-input {
     right: 1rem;
 }
 
+.formSend {
+    margin-left: 1.3rem;
+    font-size: 1rem;
+}
+
+.formSend.success {
+    background-color: #009300;
+  }
+  
+  .formSend.error {
+    background-color: #ff0000;
+  }
+
 nav {
     width: 100%;
+    height: 15vmin;
     background-color: #000093;
     color: #ffff;
     font-weight: 900;
@@ -146,16 +169,25 @@ nav {
     justify-content: center;
     align-items: center;
     margin-top: 2rem;
+    padding-top: 0.5rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
     box-shadow: 0px 3px 17px 0px rgba(0,0,0,0.75);
 }
 
 nav a img{
-   height: 12vmin;
-   width: 12vmin;
-   margin: 1rem 3rem;
+   height: 9vmin;
+   width: 9vmin;
+   margin: 0rem 3rem;
    filter: invert(100%) sepia(4%) saturate(6%) hue-rotate(211deg) brightness(104%) contrast(100%);
 }
 
 .active-nav img {
     border-bottom: 5px solid #000000;
+}
+
+.space {
+    height: 30vmin;
 }

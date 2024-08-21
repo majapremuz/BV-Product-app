@@ -5,6 +5,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import * as CryptoJS from 'crypto-js';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
+import { DarkModeComponent } from 'src/app/components/dark-mode/dark-mode.component';
 
 interface ServerResponse {
   response: string;
@@ -15,7 +16,7 @@ interface ServerResponse {
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, ReactiveFormsModule],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, ReactiveFormsModule, DarkModeComponent],
 })
 
 export class HomePage {

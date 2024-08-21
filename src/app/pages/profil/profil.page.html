@@ -1,15 +1,35 @@
 <ion-content [fullscreen]="true" (ionViewWillEnter)="fetchUserData()">
   <form [formGroup]="applyForm" (ngSubmit)="unosProfila()">
-    <img src="assets/logo.jpg" alt="logo">
+    <img src="assets/title image.png" alt="title image" class="title-img">
 
     <h1>Moji podaci</h1>
 
     <label for="ime">Ime:</label>
     <input type="text" id="ime" formControlName="ime">
-
     <label for="prezime">Prezime:</label>
     <input type="text" id="prezime" formControlName="prezime">
 
+    <p>Datum rođenja: </p>
+
+    <div class="birthday-container">
+
+      <div class="birthday">
+        <label for="godina">Godina:</label>
+        <input type="number" id="godina" formControlName="godina">
+        </div>
+    
+        <div class="birthday">
+        <label for="mjesec">Mjesec:</label>
+        <input type="number" id="mjesec" formControlName="mjesec">
+        </div>
+    
+        <div class="birthday">
+        <label for="dan">Dan:</label>
+        <input type="number" id="dan" formControlName="dan">
+      </div>
+
+    </div>
+   
     <label for="Mobitel">Mobitel:</label>
     <input type="text" id="mobitel" formControlName="mobitel">
 
@@ -31,9 +51,12 @@
 
   </form>
 
-  <div *ngIf="formSubmitted && !errorMessage" class="formSend">Podaci su uspješno poslani!</div>
+  <div *ngIf="formSubmitted && !errorMessage" class="formSend sucess">Podaci su uspješno poslani!</div>
 
-  <div *ngIf="errorMessage" class="formSend">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage" class="formSend error">{{ errorMessage }}</div>
+
+  <div class="space"></div>
+
   
   <nav>
     <a (click)="navHours()" [ngClass]="{'active-nav': currentPage === 'hours'}">

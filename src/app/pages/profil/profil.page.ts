@@ -34,6 +34,9 @@ export class ProfilPage implements OnInit {
   applyForm= new FormGroup ({
     ime: new FormControl("", Validators.required),
     prezime: new FormControl("", Validators.required),
+    godina: new FormControl("", Validators.required),
+    mjesec: new FormControl("", Validators.required),
+    dan: new FormControl("", Validators.required),
     mobitel: new FormControl("", Validators.required),
     email: new FormControl("", Validators.required),
     adresa: new FormControl("", Validators.required),
