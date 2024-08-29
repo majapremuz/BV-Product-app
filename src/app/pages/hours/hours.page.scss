@@ -19,6 +19,7 @@ form,
     align-items:flex-start;
     flex-direction: column;
     padding-left: 1rem;
+    position: relative;
 }
 
 .week-container {
@@ -66,6 +67,7 @@ form,
     margin: 1.2rem auto;
     border-radius: 5px;
     width: 90vw;
+    position: relative;
 }
 
 .day {
@@ -77,29 +79,46 @@ form,
     flex-direction: column;
     padding: 0 0.3rem;
     height: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .hours {
     display: flex;
-    justify-content: space-evenly;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
+    //position: absolute;
     position: relative;
+    left: 15%;
 }
 
 .sum {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    /*justify-content: flex-end;
+    align-items: center;*/
     flex-direction: row;
     font-weight: 900;
-    margin-top: auto;
+    /*position: absolute;
+    bottom: 0;
+    left: 12vmin;
+    padding-right: 5rem;
+    position: relative;*/
 }
 
+/*.hour {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 12vmin;
+}
+*/
 span {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
     font-weight: 900;
 }
 
@@ -111,7 +130,7 @@ p {
 select,
 input,
 ion-input {
-    width: 97%;
+    width: 100%;
     background-color: #fff;
     color: #555;
     font-size: 0.875rem;
@@ -159,6 +178,14 @@ ion-input {
     background-color: #ff0000;
   }
 
+  .deleteBtn {
+    height: 1rem;
+    width: 1rem;
+    margin-left: 0.5rem;
+    background-color: #d50404;
+    color: #ffffff;
+  }
+
 nav {
     width: 100%;
     height: 15vmin;
@@ -180,7 +207,7 @@ nav {
 nav a img{
    height: 9vmin;
    width: 9vmin;
-   margin: 0rem 3rem;
+   margin: 0rem 2rem;
    filter: invert(100%) sepia(4%) saturate(6%) hue-rotate(211deg) brightness(104%) contrast(100%);
 }
 
@@ -191,3 +218,5 @@ nav a img{
 .space {
     height: 30vmin;
 }
+  
+  

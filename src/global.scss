@@ -55,3 +55,28 @@ body.dark {
   body.dark input[type="password"] {
     background-color: #fff;
   }
+
+ .my-custom-alert {
+    --background: white;
+    --backdrop-opacity: 0.8; /* Controls the opacity of the backdrop */
+  --backdrop-background: rgba(0, 0, 0, 0.884); /* Darker backdrop */
+    --color: black;
+    --border-radius: 15px;
+    --max-width: 90%;
+  }
+  
+  #alert-1-msg {
+    color: black;
+  }
+
+ .alert-button-inner.sc-ion-alert-md {
+  margin-right: 3.5rem;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000093;
+ }

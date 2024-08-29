@@ -21,16 +21,20 @@
 
           <div class="hours">
 
-            <div class="sum">
-            <p>Ukupno:</p>
-            </div>
-
             <div class="hour">
-              <span *ngFor="let hour of hoursByDate[day]?.hours">
-                {{ hour }}
+              <span *ngFor="let hour of hoursByDate[day]?.hours; let hourIndex = index" class="hourSpan">
+                {{ hour.hours }}
+                <button *ngIf="isSelectedDate(day)" (click)="deleteHour(day, hour.hourId)" class="deleteBtn">X</button>
               </span>
-            <p>{{ hoursByDate[day]?.sum || 0 }}</p>
+
+              <div class="sum">
+              <p>Ukupno:</p>
+              <p>{{ hoursByDate[day]?.sum || 0 }}</p>
+
+              </div>
+
             </div>
+            
              
           </div>
 
@@ -41,7 +45,7 @@
       </div>
     </div>
 
-    <h1>Unos radnog vremena</h1>
+    <h1 #unos>Unos radnog vremena</h1>
 
       <ion-label position="stacked"><p class="datum">Datum:</p></ion-label>
       <p *ngIf="!selectedDate">Niste izabrali datum</p>
@@ -53,7 +57,7 @@
       <p>Vrsta unosa:</p>
     <select name="type" id="type" formControlName="vrsta">
       <option value="" disabled selected>Izaberite vrstu unosa</option>
-      <option *ngFor="let type of types"  [value]="type.id">{{ type?.title }}</option>
+      <option *ngFor="let type of types"  [value]="type.value">{{ type?.title }}</option>
     </select>
 
     <hr>
@@ -103,9 +107,8 @@
     
   </form>
 
-  <div *ngIf="formSubmitted && !errorMessage" class="formSend sucess">Podaci su uspješno poslani!</div>
-
-  <div *ngIf="errorMessage" class="formSend error">{{ errorMessage }}</div>
+<div *ngIf="formSubmitted && !errorMessage" class="formSend success">Podaci su uspješno poslani!</div>
+<div *ngIf="errorMessage" class="formSend error">{{ errorMessage }}</div>
 
   <img src="assets/certification-removebg.png" alt="certifikacije" class="certification-img">
 
@@ -117,6 +120,11 @@
   <a (click)="navHours()" [ngClass]="{'active-nav': currentPage === 'hours'}">
     <img src="assets/hours_icon.png" alt="hours icon">
   </a>
+
+  <a (click)="navLokacija()" [ngClass]="{'active-nav': currentPage === 'location'}">
+    <img src="assets/location.png" alt="location icon">
+  </a>
+
   <a (click)="navProfil()" [ngClass]="{'active-nav': currentPage === 'profil'}">
     <img src="assets/profil_icon.png" alt="profil icon">
   </a>
@@ -126,4 +134,3 @@
   </nav>
   
 </ion-content>
-

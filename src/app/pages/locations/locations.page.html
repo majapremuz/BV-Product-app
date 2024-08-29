@@ -3,11 +3,6 @@
   <div class="wraper">
     <form [formGroup]="applyForm" (ngSubmit)="unosForme()">
       <img src="assets/title image.png" alt="title image" class="title-img">
-       <h2>Od: {{ formattedDate1}}</h2>
-      <br>
-      <h2>Do: {{ formattedDate2}}</h2>
-  
-  
       <ion-item>
         <ion-label position="stacked">
           <p>Početak razdoblja:</p>
@@ -15,7 +10,7 @@
           <br>
         </ion-label>
         
-        <ion-input id="date1" [value]="formattedDate1" readonly formControlName="početak" required (click)="openPopover($event, 'popover1')" formControlName="početak"></ion-input>
+        <ion-input id="date1" [value]="formattedDate1" readonly required (click)="openPopover($event, 'popover1')" formControlName="startday"></ion-input>
         <ion-popover trigger="date1">
           <ng-template>
             <ion-datetime 
@@ -23,7 +18,7 @@
               locale="hr-HR" 
               [firstDayOfWeek]="1" 
               [highlightedDates]="highlightedDates"
-              (ionChange)="onDateChange($event, 'start')">
+              (ionChange)="onDateChange($event, 'startday')">
             </ion-datetime>
           </ng-template>
         </ion-popover>
@@ -34,10 +29,11 @@
         <ion-label position="stacked">
           <p>Kraj razdoblja:</p>
           <p>Izaberite datum</p>
+
           <br>
         </ion-label>
         
-        <ion-input id="date2" [value]="formattedDate2" readonly formControlName="kraj" required (click)="openPopover($event, 'popover2')" formControlName="kraj"></ion-input>
+        <ion-input id="date2" [value]="formattedDate2" readonly required (click)="openPopover($event, 'popover2')" formControlName="endday"></ion-input>
         <ion-popover trigger="date2">
           <ng-template>
             <ion-datetime 
@@ -45,47 +41,32 @@
               locale="hr-HR" 
               [firstDayOfWeek]="1" 
               [highlightedDates]="highlightedDates"
-              (ionChange)="onDateChange($event, 'end')">
+              (ionChange)="onDateChange($event, 'endday')">
             </ion-datetime>
           </ng-template>
         </ion-popover>
       </ion-item>
-    <button type="submit">Pošalji nove datume</button>
+
+      <p class="lokacija">Lokacija posla:</p>
+    <select name="location" id="location" formControlName="location">
+      <option value="" disabled selected>Izaberite lokaciju</option>
+      <option *ngFor="let location of locations"  [value]="location.id">{{ location?.title }}</option>
+    </select>
+
+    <button type="submit">Prikaži radne sate</button>
     </form>
-
-    <div *ngIf="formSubmitted && !errorMessage" class="formSend sucess">Podaci su uspješno poslani!</div>
-
-    <div *ngIf="errorMessage" class="formSend error">{{ errorMessage }}</div>
+    <div class="workersDataConteiner" *ngIf="responseData">
   
-  
-    <div class="workers">
-      <h2>VOIT Landshut</h2>
-      t - Ivan Horvat
-      <br>
-      <h2>VOIT - JUSTIZ</h2>
-      NINOSLAV OBRADOVIĆ
-      <br>
-      Davor Pilaj
-      <br>
-      SIMON MARTINEC
-      <br>
-      DENIS BLAŽINČIĆ
-      <br>
-      JOSIP DRVENKAR
-      <br>
-      MARIJAN MEKE
-      <br>
-      ŽELJKO ŽGANEC
-      <br>
-      NENAD PINTARIĆ
-      <br>
-      MATIJA LESJAK
-      <br>
-      MARKO NOVAK
-      <br>
-      SILVIO NOVAK
-      <br>
-      t - Ivan Horvat
+      <div class="workersDataDate"*ngFor="let item of responseData">
+          <h1> {{item.date }} </h1>
+          
+          <div class="workersData" *ngFor="let key of getKeys(item)">
+               <div *ngIf="isNumericKey(key)" class="workers">
+                <p> {{ item[key].name }} {{ item[key].surname }} - {{ item[key].hours }} - {{ item[key].type }}</p>
+               </div>
+          </div>
+      </div>
+    
     </div>
   </div>
   
@@ -93,6 +74,9 @@
   <nav>
     <a (click)="navHours()" [ngClass]="{'active-nav': currentPage === 'hours'}">
       <img src="assets/hours_icon.png" alt="hours icon">
+    </a>
+    <a (click)="navLokacija()" [ngClass]="{'active-nav': currentPage === 'locations'}">
+      <img src="assets/location.png" alt="location icon">
     </a>
     <a (click)="navProfil()" [ngClass]="{'active-nav': currentPage === 'profil'}">
       <img src="assets/profil_icon.png" alt="profil icon">

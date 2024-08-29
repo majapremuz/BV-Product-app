@@ -1,1 +1,1 @@
- https://bvproduct.virtualka.prolink.hr/api/type.php
+ DELETE https://bvproduct.virtualka.prolink.hr/api/hours-add.php

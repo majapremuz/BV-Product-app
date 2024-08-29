@@ -9,6 +9,11 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 
+interface Location {
+  id: string;
+  title: string;
+}
+
 
 @Component({
   selector: 'app-locations',
@@ -24,12 +29,23 @@ export class LocationsPage implements OnInit {
   formattedDate1: string = '';
   formattedDate2: string = '';
   applyForm= new FormGroup ({
-    početak: new FormControl("", Validators.required),
-    kraj: new FormControl("", Validators.required)
+    startday: new FormControl("", Validators.required),
+    endday: new FormControl("", Validators.required),
+    location: new FormControl("", Validators.required)
   })
 
+  locations: Location[] = [];
   formSubmitted: boolean = false;
   errorMessage: string | null = null;
+  responseData: any = null;
+
+  getKeys(obj: any): string[] {
+    return Object.keys(obj);
+  }
+
+  isNumericKey(key: string): boolean {
+    return !isNaN(Number(key));
+  }
 
   constructor(
     private router: Router,
@@ -40,6 +56,44 @@ export class LocationsPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      this.loadLocations();
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  async loadLocations() {
+    const credentials = this.authService.getHashedCredentials();
+    
+    if (!credentials) {
+      this.errorMessage = 'Failed to retrieve credentials.';
+      this.router.navigate(['/home']);
+      return;
+    }
+    
+    const authPayload = {
+      username: credentials.hashedUsername,
+      password: credentials.hashedPassword
+    };
+    
+    try {
+      this.http.post<Location[]>('https://bvproduct.app/api/locations.php', authPayload)
+        .subscribe({
+          next: (response) => {
+            this.locations = response;
+            console.log(this.locations);
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
+            console.error('Error loading locations', error);
+            this.errorMessage = 'Failed to load locations. Please try again later.';
+          }
+        });
+    } catch (error) {
+      console.error('Unexpected error', error);
+      this.errorMessage = 'An unexpected error occurred. Please try again later.';
+    }
   }
 
   highlightedDates = [
@@ -73,14 +127,14 @@ export class LocationsPage implements OnInit {
     const year = date.getFullYear();
     const formattedDate = `${year}-${month}-${day}`;
 
-    if (type === 'start') {
+    if (type === 'startday') {
       this.selectedDateStart = selectedDate;
       this.formattedDate1 = formattedDate;
-      this.applyForm.patchValue({ početak: formattedDate });
-    } else if (type === 'end') {
+      this.applyForm.patchValue({ startday: formattedDate });
+    } else if (type === 'endday') {
       this.selectedDateEnd = selectedDate;
       this.formattedDate2 = formattedDate;
-      this.applyForm.patchValue({ kraj: formattedDate });
+      this.applyForm.patchValue({ endday: formattedDate });
     }
   }
 
@@ -93,48 +147,57 @@ export class LocationsPage implements OnInit {
     }
   }
 
-unosForme() {
-  if (this.applyForm.valid) {
-    const formData = this.applyForm.value;
-    const credentials = this.authService.getHashedCredentials();
+  unosForme() {
+    if (this.applyForm.valid) {
+        const formData = this.applyForm.value;
+        const credentials = this.authService.getHashedCredentials();
 
-    if (!credentials) {
-      this.errorMessage = 'Failed to retrieve credentials.';
-      console.error(this.errorMessage);
-      return;
-    }
-
-    const payload = {
-      ...formData,
-      username: credentials.hashedUsername,
-      password: credentials.hashedPassword,
-    };
-
-    const headers = { 'Content-Type': 'application/json' };
-
-    this.http.post('https://bvproduct.virtualka.prolink.hr/api/hours.php', payload, { headers })
-      .subscribe({
-        next: response => {
-          this.formSubmitted = true;
-          this.errorMessage = null;
-          console.log('Obrazac uspješno poslan', response);
-        },
-        error: error => {
-          this.formSubmitted = true;
-          this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-          console.error('Greška kod slanja obrasca', error);
+        if (!credentials) {
+            this.errorMessage = 'Failed to retrieve credentials.';
+            console.error(this.errorMessage);
+            return;
         }
-      });
-  } else {
-    this.formSubmitted = true;
-    this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-    console.warn('Obrasac nije ispravan');
-  }
+
+        const payload = {
+            username: credentials.hashedUsername,
+            password: credentials.hashedPassword,
+            startday: formData.startday,
+            endday: formData.endday,
+            location: formData.location
+        };
+
+        console.log("payload: ", payload);
+
+        const headers = { 'Content-Type': 'application/json' };
+
+        this.http.post('https://bvproduct.app/api/locationsusers.php', payload, { headers })
+            .subscribe({
+                next: (response: any) => {
+                    this.formSubmitted = true;
+                    this.errorMessage = null;
+                    this.responseData = response; // Assume response is an array of objects
+                    console.log('Data successfully fetched', response);
+
+                    // Add a log to see the structure of the response
+                    console.log('Backend Response:', response);
+                },
+                error: error => {
+                    this.formSubmitted = true;
+                    this.errorMessage = 'There was an error fetching the data. Please try again later.';
+                    console.error('Error fetching data', error);
+                }
+            });
+    } else {
+        this.formSubmitted = true;
+        this.errorMessage = 'Please fill out all required fields before submitting.';
+        console.warn('Form is not valid');
+    }
 }
 
+
+
+
 navHours() {
-  this.currentPage = 'hours';
-  this.cdr.detectChanges();
   this.router.navigateByUrl('/hours');
 }
 
@@ -143,14 +206,10 @@ navLokacija() {
 }
 
 navProfil() {
-  this.currentPage = 'profil';
-  this.cdr.detectChanges();
   this.router.navigateByUrl('/profil');
 }
 
 navOdjava() {
-  this.currentPage = 'home';
-  this.cdr.detectChanges();
   this.router.navigateByUrl('/home');
 }
       

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.prolink.bvproduct',
+  appId: 'bvproduct.app',
   appName: 'bvproduct',
   webDir: 'www'
 };

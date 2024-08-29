@@ -24,6 +24,10 @@ p {
     font-family: 'Poppins', sans-serif;
 }
 
+.lokacija {
+    text-indent: 1rem;
+}
+
 form, ion-label {
     display: flex;
     justify-content: center;
@@ -31,12 +35,18 @@ form, ion-label {
     flex-direction: column;
 }
 
-ion-input {
+ion-input, select {
     width: 97%;
     font-size: 0.875rem;
     box-shadow: inset 0 1px 1px rgb(0, 0, 0);
     border-radius: 5px;
     text-indent: 0.5rem;
+}
+
+select {
+    background-color: #fff;
+    min-height: 40px;
+    margin: 0 0.3rem;
 }
 
 ion-item {
@@ -115,7 +125,7 @@ nav {
 
 nav a img{
    height: 9vmin;
-   margin: 1rem 2rem;
+   margin: 1rem 1.5rem;
    filter: invert(100%) sepia(4%) saturate(6%) hue-rotate(211deg) brightness(104%) contrast(100%);
 }
 
