@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter, tap } from 'rxjs/operators';
+import { filter, tap, map } from 'rxjs/operators';
 import { NavController } from '@ionic/angular';
 import { HttpClient} from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
@@ -23,8 +23,9 @@ interface Types {
 }
 
 interface Hours {
-  hourId: number,
-  hours: number
+  id: number;
+  date_of_work: string;
+  hours: number;
 }
 
 @Component({
@@ -78,6 +79,7 @@ export class HoursPage implements OnInit {
     });
   }
 
+
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.loadLocations();
@@ -90,7 +92,7 @@ export class HoursPage implements OnInit {
     this.loadSelectedDate();
     this.loadHoursByDate();
   }
-  
+
   selectDate(datum: string) {
     const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
     this.selectedDate = formattedDate;
@@ -122,12 +124,10 @@ export class HoursPage implements OnInit {
             this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
         }
 
-        // Use the hourId from the form if applicable, or set it to -1 if adding a new entry
-        const hourId = -1; // This would typically be replaced by the ID returned from the server after adding a new hour
+        const hourId = -1;
   
-        this.hoursByDate[formattedDate].hours.push({ hourId, hours: selectedHours });
+        this.hoursByDate[formattedDate].hours.push({ id: hourId, hours: selectedHours, date_of_work: selectedDate });
         this.hoursByDate[formattedDate].sum += selectedHours;
-        console.log("this.hoursByDate: ", this.hoursByDate)
 
         this.applyForm.get('sati')?.reset();
         this.cdr.markForCheck();
@@ -136,10 +136,10 @@ export class HoursPage implements OnInit {
 }
 
 async deleteHour(day: string, hourId: number) {
-  const formattedDate = moment(day, 'DD.MM.YYYY').format('YYYY-MM-DD');
+  const formattedDate = moment(day, 'DD.MM.YYYY').format('DD.MM.YYYY');
   const hoursForDay = this.hoursByDate[formattedDate]?.hours || [];
   
-  const hourIndex = hoursForDay.findIndex(hour => hour.hourId === hourId);
+  const hourIndex = hoursForDay.findIndex(hour => hour.id === hourId);
   if (hourIndex === -1) {
       console.error('Hour to delete not found:', hourId);
       return;
@@ -155,9 +155,11 @@ async deleteHour(day: string, hourId: number) {
           {
               text: 'Odustani',
               role: 'cancel',
+              cssClass: 'alert-button-group',
           },
           {
               text: 'Obriši',
+              cssClass: 'alert-button-group',
               handler: () => {
                   // Remove hour locally
                   this.hoursByDate[formattedDate].hours.splice(hourIndex, 1);
@@ -207,18 +209,22 @@ private removeHourFromServer(hourId: string): Observable<void> {
     id: hourId
   };
 
-  console.log("authPayload: ", authPayload);
-
   const url = `https://bvproduct.app/api/hours-delete.php`;
 
-  return this.http.request<void>('DELETE', url, {
-    body: authPayload,
-    headers: { 'Content-Type': 'application/json' },
-    observe: 'body'
+  // Send a POST request with the payload in the body
+  return this.http.post<{ response: string }>(url, authPayload, {
+    headers: { 'Content-Type': 'application/json' }
   }).pipe(
-    tap(response => console.log('Response from server:', response))
+    tap(response => {
+      console.log('Response from server:', response);
+      if (response.response === "Failure") {
+        this.errorMessage = 'Server returned failure response.';
+      }
+    }),
+    map(() => undefined)  // Convert the result to Observable<void>
   );
 }
+
 
   
   setCurrentWeek(weekOffset = 0) {
@@ -246,9 +252,9 @@ private removeHourFromServer(hourId: string): Observable<void> {
 
   private saveHoursByDate() {
     localStorage.setItem('hoursByDate', JSON.stringify(this.hoursByDate));
+    this.cdr.markForCheck();
 }
 
-  
   // Load hoursByDate from localStorage
   private loadHoursByDate() {
     const savedHours = localStorage.getItem('hoursByDate');
@@ -266,92 +272,56 @@ private removeHourFromServer(hourId: string): Observable<void> {
     }
   }
 
-  /*async loadHours() {
+  async loadHours() {
     const credentials = this.authService.getHashedCredentials();
     
     if (!credentials) {
-        this.errorMessage = 'Failed to retrieve credentials.';
-        this.router.navigate(['/home']);
-        return;
-    }
-    
-    const authPayload = {
-        username: credentials.hashedUsername,
-        password: credentials.hashedPassword
-    };
-    
-    try {
-        this.http.post<{ id: number, date_of_work: string, hours: number }[]>('https://bvproduct.app/api/hours.php', authPayload)
-            .subscribe({
-                next: (response) => {
-                    // Clear previous hours data
-                    this.hoursByDate = {};
-                    console.log("Loaded hours from server: ", response);
-
-                    response.forEach(hour => {
-                        const formattedDate = moment(hour, 'YYYY-MM-DD').format('DD.MM.YYYY');
-                        console.log("Raw date_of_work: ", hour);
-
-                        if (!this.hoursByDate[formattedDate]) {
-                            this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
-                        }
-                        
-                        this.hoursByDate[formattedDate].hours.push({ hourId: hour.id, hours: hour.hours });
-                        this.hoursByDate[formattedDate].sum += hour.hours;
-                    });
-                    
-                    console.log("Loaded hoursByDate: ", this.hoursByDate);
-                    this.cdr.markForCheck();
-                },
-                error: (error) => {
-                    console.error('Error loading hours', error);
-                    this.errorMessage = 'Failed to load hours. Please try again later.';
-                }
-            });
-    } catch (error) {
-        console.error('Unexpected error', error);
-        this.errorMessage = 'An unexpected error occurred. Please try again later.';
-    }
-}*/
-
-async loadHours() {
-  const credentials = this.authService.getHashedCredentials();
-  
-  if (!credentials) {
       this.errorMessage = 'Failed to retrieve credentials.';
       this.router.navigate(['/home']);
       return;
-  }
+    }
   
-  const authPayload = {
+    const startOfWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
+    const endOfWeek = moment().endOf('isoWeek').format('YYYY-MM-DD');
+  
+    const authPayload = {
       username: credentials.hashedUsername,
-      password: credentials.hashedPassword
-  };
-
-  console.log(authPayload)
+      password: credentials.hashedPassword,
+      start: startOfWeek,
+      end: endOfWeek
+    };
   
-  try {
-    this.http.post<any>('https://bvproduct.app/api/hours.php', authPayload)
-    .subscribe({
-        next: (response) => {
-            console.log("API Response:", response);
-
-            // Further processing here
-        },
-        error: (error) => {
+    try {
+      this.http.post<any>('https://bvproduct.app/api/hours.php', authPayload)
+        .subscribe({
+          next: (response) => {
+  
+            // Process the response to update hoursByDate
+            this.hoursByDate = {};
+            response.forEach((hour: Hours) => {
+              const formattedDate = moment(hour.date_of_work, 'YYYY-MM-DD').format('DD.MM.YYYY');
+              
+              if (!this.hoursByDate[formattedDate]) {
+                this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
+              }
+  
+              this.hoursByDate[formattedDate].hours.push({ id: hour.id, hours: hour.hours, date_of_work: hour.date_of_work });
+              this.hoursByDate[formattedDate].sum += hour.hours;
+            });
+  
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
             console.error('Error loading hours', error);
             this.errorMessage = 'Failed to load hours. Please try again later.';
-        }
-    });
-  } catch (error) {
-    console.error('Unexpected error', error);
-    this.errorMessage = 'An unexpected error occurred. Please try again later.';
-}
-}
-
-
-
-
+          }
+        });
+    } catch (error) {
+      console.error('Unexpected error', error);
+      this.errorMessage = 'An unexpected error occurred. Please try again later.';
+    }
+  }
+  
 
 
   async loadLocations() {
@@ -406,7 +376,6 @@ async loadHours() {
         .subscribe({
           next: (response) => {
             this.types = response;
-            console.log(this.types);
             this.cdr.markForCheck();
           },
           error: (error) => {
@@ -420,52 +389,63 @@ async loadHours() {
     }
   }
 
-  async unosForme() {
-    this.formSubmitted = false; // Reset before submitting
-  
-    if (this.applyForm.valid) {
-      const formData = this.applyForm.value;
-      const credentials = this.authService.getHashedCredentials();
-  
-      if (!credentials) {
-        this.errorMessage = 'Failed to retrieve credentials.';
-        console.error(this.errorMessage);
-        return;
+    async unosForme() {
+      this.formSubmitted = false;
+    
+      if (this.applyForm.valid) {
+        const formData = this.applyForm.value;
+        const credentials = this.authService.getHashedCredentials();
+    
+        if (!credentials) {
+          this.errorMessage = 'Failed to retrieve credentials.';
+          console.error(this.errorMessage);
+          return;
+        }
+    
+        const payload = {
+          ...formData,
+          username: credentials.hashedUsername,
+          password: credentials.hashedPassword,
+        };
+    
+        console.log("payload: ", payload);
+    
+        const headers = { 'Content-Type': 'application/json' };
+    
+        this.http.post('https://bvproduct.app/api/hours-add.php', payload, { headers })
+          .subscribe({
+            next: response => {
+              this.formSubmitted = true;
+              this.errorMessage = null;
+    
+              // Add hours locally
+              this.addHours();
+    
+              console.log('Obrazac uspješno poslan', response);
+    
+              // Trigger change detection to update the view
+              this.cdr.markForCheck();
+            },
+            error: error => {
+              this.formSubmitted = true;
+              this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+              console.error('Greška kod slanja obrasca', error);
+    
+              // Trigger change detection in case of error
+              this.cdr.markForCheck();
+            }
+          });
+    
+      } else {
+        this.formSubmitted = true;
+        this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+        console.warn('Obrasac nije ispravan');
+        
+        // Ensure change detection is triggered when form is invalid
+        this.cdr.markForCheck();
       }
-  
-      const payload = {
-        ...formData,
-        username: credentials.hashedUsername,
-        password: credentials.hashedPassword,
-      };
-
-      console.log("payload: ", payload)
-  
-      const headers = { 'Content-Type': 'application/json' };
-  
-      this.http.post('https://bvproduct.app/api/hours-add.php', payload, { headers })
-        .subscribe({
-          next: response => {
-            this.formSubmitted = true; // Set to true after successful submission
-            this.errorMessage = null;
-            //this.addHours();  // Call addHours after successful submission
-            console.log('Obrazac uspješno poslan', response);
-            this.cdr.detectChanges();
-          },
-          error: error => {
-            this.formSubmitted = true; // Set to true even in case of error to show the error message
-            this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-            console.error('Greška kod slanja obrasca', error);
-            this.cdr.detectChanges();
-          }
-        });
-    } else {
-      this.formSubmitted = true; // Set to true if form is invalid to show validation error
-      this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-      console.warn('Obrasac nije ispravan');
-      this.cdr.detectChanges();
     }
-  }
+    
   
     
     navHours() {

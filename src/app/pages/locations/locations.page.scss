@@ -133,4 +133,18 @@ nav a img{
     border-bottom: 5px solid #000000;
 }
 
+.workersDataDate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.workersData {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+}
 

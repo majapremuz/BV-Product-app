@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -8,76 +9,67 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
-
 /* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
-
 /* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
-
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
  * For more info, please see:
  * https://ionicframework.com/docs/theming/dark-mode
  */
-
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
-
 /*:root {
   ion-color-primary: red;
 }*/
-
 :root {
   --ion-color-primary: white;
 }
 
 body.dark {
-    --ion-background-color: #121212;
-    --ion-text-color: #ffffff;
-  }
+  --ion-background-color: #121212;
+  --ion-text-color: #ffffff;
+}
 
+body.dark .title-img {
+  filter: invert(100%) sepia(1%) saturate(0%) hue-rotate(269deg) brightness(113%);
+}
 
-  body.dark .title-img {
-    filter: invert(100%) sepia(1%) saturate(0%) hue-rotate(269deg) brightness(113%)
-  }
+body.dark .sc-ion-label-md-s > p {
+  color: white;
+}
 
+body.dark input[type=text],
+body.dark input[type=password] {
+  background-color: #fff;
+}
 
-  body.dark .sc-ion-label-md-s >p {
-    color: white;
-  }
-
-  body.dark input[type="text"],
-  body.dark input[type="password"] {
-    background-color: #fff;
-  }
-
- .my-custom-alert {
-    --background: white;
-    --backdrop-opacity: 0.8; /* Controls the opacity of the backdrop */
+.my-custom-alert {
+  --background: white;
+  --backdrop-opacity: 0.8; /* Controls the opacity of the backdrop */
   --backdrop-background: rgba(0, 0, 0, 0.884); /* Darker backdrop */
-    --color: black;
-    --border-radius: 15px;
-    --max-width: 90%;
-  }
-  
-  #alert-1-msg {
-    color: black;
-  }
+  --color: black;
+  --border-radius: 15px;
+  --max-width: 90%;
+}
 
- .alert-button-group .sc-ion-alert-md{
+#alert-1-msg {
+  color: black;
+}
+
+.alert-button-group .sc-ion-alert-md {
   margin: 1rem;
   color: var(--ion-color-primary, red);
   text-align: center;
@@ -88,18 +80,17 @@ body.dark {
   align-items: center;
   flex-direction: row;
   flex-wrap: nowrap;
- }
+}
 
- .alert-button {
+.alert-button {
   background: linear-gradient(90deg, rgb(0, 107, 189) 0%, rgb(0, 0, 147) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
- }
+}
 
 /*
 obriši: alert-button ion-focusable ion-activatable alert-button-group sc-ion-alert-md
 odustani: alert-button ion-focusable ion-activatable alert-button-role-cancel alert-button-group sc-ion-alert-md
 
-*/
- 
+*//*# sourceMappingURL=global.css.map */

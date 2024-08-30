@@ -1,0 +1,50 @@
+ion-content {
+  --background: #4048c5;
+}
+
+#container {
+  width: 92%;
+  margin: 3rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: white;
+  padding: 2rem 1.8rem;
+  border-radius: 5px;
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.42857143;
+}
+
+img {
+  width: 100%;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+
+input[type=text],
+input[type=password] {
+  margin: 0.8rem auto;
+  width: 100%;
+  color: #333;
+  font-size: 0.95rem;
+  padding: 0.15rem;
+  background-color: #fff;
+}
+
+button {
+  background-color: #4048c5;
+  color: white;
+  width: 100%;
+  padding: 1.15em 0;
+  border-radius: 0.5em;
+  margin: 1em 0;
+  font-size: 0.875rem;
+  font-weight: bold;
+}/*# sourceMappingURL=home.page.css.map */

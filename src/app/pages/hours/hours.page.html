@@ -24,7 +24,7 @@
             <div class="hour">
               <span *ngFor="let hour of hoursByDate[day]?.hours; let hourIndex = index" class="hourSpan">
                 {{ hour.hours }}
-                <button *ngIf="isSelectedDate(day)" (click)="deleteHour(day, hour.hourId)" class="deleteBtn">X</button>
+                <button (click)="deleteHour(day, hour.id)" class="deleteBtn">X</button>
               </span>
 
               <div class="sum">

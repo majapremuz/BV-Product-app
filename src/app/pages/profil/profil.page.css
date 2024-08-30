@@ -1,0 +1,161 @@
+ion-content {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.42857143;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 3em;
+  padding: 0 1rem;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  padding-left: 1rem;
+  position: relative;
+}
+
+h1 {
+  line-height: 1.1;
+  font-size: 1.875rem;
+  text-align: left;
+  font-weight: 500;
+}
+
+label {
+  margin: -2px;
+  font-size: 0.875rem;
+  padding-top: 0.5rem;
+}
+
+input {
+  width: 97%;
+  background-color: #fff;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  margin: 0;
+  padding: 0.2em;
+  border-radius: 5px;
+  z-index: 10;
+  position: relative;
+}
+
+/*
+sc-ion-input-md-h {
+  --border-width: 1px;
+  --border-color: var(--ion-item-border-color, var(--ion-border-color, var(--ion-color-step-150, var(--ion-background-color-step-150, rgba(0, 0, 0, 0.13)))));
+  --highlight-height: 2px;
+  font-size: inherit;
+}
+.sc-ion-input-md-h {
+  --placeholder-color: initial;
+  --placeholder-font-style: initial;
+  --placeholder-font-weight: initial;
+  --placeholder-opacity: var(--ion-placeholder-opacity, 0.6);
+  --padding-top: 0px;
+  --padding-end: 0px;
+  --padding-bottom: 0px;
+  --padding-start: 0px;
+  --background: transparent;
+  --color: initial;
+  --border-style: solid;
+  --highlight-color-focused: var(--ion-color-primary, #0054e9);
+  --highlight-color-valid: var(--ion-color-success, #2dd55b);
+  --highlight-color-invalid: var(--ion-color-danger, #c5000f);
+  --highlight-color: var(--highlight-color-focused);
+  display: block;
+  position: relative;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 !important;
+  color: var(--color);
+  font-family: var(--ion-font-family, inherit);
+  z-index: 2;
+*/
+.sc-ion-input-md-h {
+  background-color: #fff;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.547);
+  position: relative;
+  border-radius: 5px;
+  min-height: 37px;
+  z-index: 10;
+  text-indent: 1rem;
+}
+
+ion-item {
+  width: 105%;
+  z-index: 5;
+  position: relative;
+  right: 1rem;
+}
+
+ion-label p {
+  color: #000000;
+  font-size: 1.2rem;
+  text-indent: 0.2rem;
+}
+
+/*ion-datetime {
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.547);
+}*/
+button, .formSend {
+  background-color: #009300;
+  color: #fff;
+  width: 103%;
+  padding: 1.2em 0;
+  text-align: center;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 1.2em;
+  position: relative;
+  right: 1rem;
+  margin: 2rem 0;
+}
+
+.formSend {
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+
+.formSend.success {
+  background-color: #009300;
+}
+
+.formSend.error {
+  background-color: #ff0000;
+}
+
+nav {
+  width: 100%;
+  height: 15vmin;
+  background-color: #000093;
+  color: white;
+  font-weight: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0.5rem;
+  position: fixed;
+  bottom: 0;
+  box-shadow: 0px 3px 17px 0px rgba(0, 0, 0, 0.75);
+}
+
+nav a img {
+  height: 9vmin;
+  margin: 1rem 1rem;
+  filter: invert(100%) sepia(4%) saturate(6%) hue-rotate(211deg) brightness(104%) contrast(100%);
+}
+
+.active-nav img {
+  border-bottom: 5px solid #000000;
+}
+
+.space {
+  height: 30vmin;
+}/*# sourceMappingURL=profil.page.css.map */
