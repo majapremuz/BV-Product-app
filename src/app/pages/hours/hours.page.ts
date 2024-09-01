@@ -34,12 +34,15 @@ interface Hours {
   styleUrls: ['./hours.page.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class HoursPage implements OnInit {
   @ViewChild('unos') unos!: ElementRef;
   currentPage: string = 'hours';
   currentWeek: string[] = [];
+  currentWeekOffset: number = 0;
+  currentWeekStart: string = '';
+  currentWeekEnd: string = '';
   selectedDate: string | null = null;
   hoursByDate: { [key: string]: { hours: Hours[], sum: number } } = {};
   applyForm= new FormGroup ({
@@ -225,14 +228,22 @@ private removeHourFromServer(hourId: string): Observable<void> {
   );
 }
 
-
+    setCurrentWeek(weekOffset = 0) {
+      const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
+      const endOfWeek = moment(startOfWeek).endOf('isoWeek');
   
-  setCurrentWeek(weekOffset = 0) {
-    const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
-    this.currentWeek = Array.from({ length: 7 }).map((_, i) =>
-      startOfWeek.clone().add(i, 'days').format('DD.MM.YYYY')
-    );
-  }
+      // Format dates for your application
+      this.currentWeekStart = startOfWeek.format('YYYY-MM-DD');
+      this.currentWeekEnd = endOfWeek.format('YYYY-MM-DD');
+  
+      // Update currentWeek array if needed
+      this.currentWeek = Array.from({ length: 7 }).map((_, i) =>
+        startOfWeek.clone().add(i, 'days').format('DD.MM.YYYY')
+      );
+  
+      // Load hours for the new week
+      this.loadHours();
+    }
 
   previousWeek() {
     const currentStartDate = moment(this.currentWeek[0], 'DD.MM.YYYY');
@@ -281,8 +292,11 @@ private removeHourFromServer(hourId: string): Observable<void> {
       return;
     }
   
-    const startOfWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
-    const endOfWeek = moment().endOf('isoWeek').format('YYYY-MM-DD');
+    const startOfWeek = this.currentWeekStart;
+    const endOfWeek = this.currentWeekEnd;
+  
+    console.log("start: ", startOfWeek);
+    console.log("end: ", endOfWeek);
   
     const authPayload = {
       username: credentials.hashedUsername,
@@ -321,8 +335,6 @@ private removeHourFromServer(hourId: string): Observable<void> {
       this.errorMessage = 'An unexpected error occurred. Please try again later.';
     }
   }
-  
-
 
   async loadLocations() {
     const credentials = this.authService.getHashedCredentials();
