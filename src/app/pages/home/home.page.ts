@@ -42,7 +42,7 @@ export class HomePage {
   
   
     if (this.applyForm.valid && korisnik && lozinka) {
-      this.http.post<ServerResponse[]>('https://bvproduct.virtualka.prolink.hr/api/login.php', {
+      this.http.post<ServerResponse[]>('https://bvproduct.app/api/login.php', {
         username: hashedUsername,
         password: hashedPassword
       }).subscribe({

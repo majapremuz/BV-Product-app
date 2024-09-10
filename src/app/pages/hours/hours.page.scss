@@ -49,15 +49,14 @@ form,
     align-self: center;
 } 
 
-
-
 .izaberiBtn a {
     color: white;
     text-decoration: none;
     font-size: 0.8rem;
     padding: 1rem 0;
     font-weight: 900;
-    margin: -1.5rem;
+    margin: -1.3rem;
+    text-align: center;
 }
 
 .days {
@@ -67,8 +66,9 @@ form,
     color: black;
     background-color: #ebebeb;
     margin: 1.2rem auto;
+    padding-left: 0.3rem;
     border-radius: 5px;
-    width: 90vw;
+    width: 92vmin;
     position: relative;
 }
 

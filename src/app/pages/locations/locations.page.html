@@ -62,7 +62,7 @@
           
           <div class="workersData" *ngFor="let key of getKeys(item)">
                <div *ngIf="isNumericKey(key)" class="workers">
-                <p> {{ item[key].name }} {{ item[key].surname }} - {{ item[key].hours }} - {{ item[key].type }}</p>
+                <p> {{ item[key].surname }} {{ item[key].name }} - {{ item[key].hours }} - {{ item[key].type }}</p>
                </div>
           </div>
       </div>
