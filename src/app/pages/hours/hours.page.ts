@@ -85,17 +85,21 @@ export class HoursPage implements OnInit {
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
+      this.clearUserData();
       this.loadLocations();
       this.loadTypes();
       this.loadHours();
+      this.setCurrentWeek();
+      this.loadSelectedDate();
+      this.loadHoursByDate();
     } else {
       this.router.navigate(['/home']);
     }
-    this.setCurrentWeek();
-    this.loadSelectedDate();
-    this.loadHoursByDate();
   }
-
+  /*
+  jozo: hoursByDate_b115ac9b5f498f09908b555f22262a0fd24090c2:"{"09.09.2024":{"hours":[{"id":-1,"hours":4,"date_of_work":"2024-09-09"},{"id":-1,"hours":4.5,"date_of_work":"2024-09-09"}],"sum":8.5}}"
+  test: hoursByDate_b115ac9b5f498f09908b555f22262a0fd24090c2:"{"09.09.2024":{"hours":[{"id":-1,"hours":4,"date_of_work":"2024-09-09"},{"id":-1,"hours":4.5,"date_of_work":"2024-09-09"}],"sum":8.5}}"
+  */
   selectDate(datum: string) {
     const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
     this.selectedDate = formattedDate;
@@ -136,6 +140,7 @@ export class HoursPage implements OnInit {
         this.cdr.markForCheck();
         this.saveHoursByDate();
     }
+    this.cdr.detectChanges();
 }
 
 async deleteHour(day: string, hourId: number) {
@@ -231,10 +236,13 @@ private removeHourFromServer(hourId: string): Observable<void> {
     setCurrentWeek(weekOffset = 0) {
       const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
       const endOfWeek = moment(startOfWeek).endOf('isoWeek');
+
   
       // Format dates for your application
       this.currentWeekStart = startOfWeek.format('YYYY-MM-DD');
       this.currentWeekEnd = endOfWeek.format('YYYY-MM-DD');
+      console.log("end off week: ", this.currentWeekEnd)
+
   
       // Update currentWeek array if needed
       this.currentWeek = Array.from({ length: 7 }).map((_, i) =>
@@ -257,34 +265,78 @@ private removeHourFromServer(hourId: string): Observable<void> {
     this.setCurrentWeek(nextWeekStartDate.diff(moment().startOf('isoWeek'), 'weeks'));
   }
 
-  private saveSelectedDate(date: string) {
-    localStorage.setItem('selectedDate', date);
+  private getStorageKey(prefix: string): string {
+    const credentials = this.authService.getHashedCredentials();
+    if (!credentials) {
+      throw new Error('No credentials found');
+    }
+    return `${prefix}_${credentials.hashedUsername}_${credentials.hashedPassword}`;
   }
 
-  private saveHoursByDate() {
-    localStorage.setItem('hoursByDate', JSON.stringify(this.hoursByDate));
-    this.cdr.markForCheck();
-}
-
-  // Load hoursByDate from localStorage
-  private loadHoursByDate() {
-    const savedHours = localStorage.getItem('hoursByDate');
-    if (savedHours) {
-      this.hoursByDate = JSON.parse(savedHours);
-      this.cdr.markForCheck();
+  private saveSelectedDate(datum: string) {
+    try {
+      const key = this.getStorageKey('selectedDate');
+      localStorage.setItem(key, JSON.stringify(datum));
+      console.log("date key: ", key)
+    } catch (e) {
+      console.error('Failed to save selectedDate:', e);
     }
   }
 
   private loadSelectedDate() {
-    const savedDate = localStorage.getItem('selectedDate');
-    if (savedDate) {
-      this.selectedDate = savedDate;
-      this.applyForm.patchValue({ datum: savedDate });
+    try {
+      const key = this.getStorageKey('selectedDate');
+      const savedDate = localStorage.getItem(key);
+      if (savedDate) {
+        this.selectedDate = JSON.parse(savedDate);
+        this.applyForm.patchValue({ datum: this.selectedDate });
+      }
+    } catch (e) {
+      console.error('Failed to load selectedDate:', e);
+    }
+    this.cdr.markForCheck();
+  }
+
+  private saveHoursByDate() {
+    try {
+      const key = this.getStorageKey('hoursByDate');
+      localStorage.setItem(key, JSON.stringify(this.hoursByDate));
+    } catch (e) {
+      console.error('Failed to save hoursByDate:', e);
     }
   }
 
+  
+  private loadHoursByDate() {
+    try {
+      const key = this.getStorageKey('hoursByDate');
+      const savedHours = localStorage.getItem(key);
+      if (savedHours) {
+        this.hoursByDate = JSON.parse(savedHours);
+      }
+    } catch (e) {
+      console.error('Failed to load hoursByDate:', e);
+    }
+  }
+
+  
+  private clearUserData() {
+    const credentials = this.authService.getHashedCredentials();
+    if (credentials) {
+      const userId = credentials.hashedUsername;
+      const userPassword = credentials.hashedPassword;
+      localStorage.removeItem(`hoursByDate_${userId}_${userPassword}`);
+      localStorage.removeItem(`selectedDate_${userId}_${userPassword}`);
+    }
+    this.hoursByDate = {};
+    this.cdr.detectChanges(); 
+}
+
+  
+
   async loadHours() {
     const credentials = this.authService.getHashedCredentials();
+    console.log('Retrieved credentials:', credentials);
     
     if (!credentials) {
       this.errorMessage = 'Failed to retrieve credentials.';
@@ -295,15 +347,14 @@ private removeHourFromServer(hourId: string): Observable<void> {
     const startOfWeek = this.currentWeekStart;
     const endOfWeek = this.currentWeekEnd;
   
-    console.log("start: ", startOfWeek);
-    console.log("end: ", endOfWeek);
-  
     const authPayload = {
       username: credentials.hashedUsername,
       password: credentials.hashedPassword,
       start: startOfWeek,
       end: endOfWeek
     };
+
+    console.log("authPayload: ", authPayload)
   
     try {
       this.http.post<any>('https://bvproduct.app/api/hours.php', authPayload)
@@ -349,14 +400,14 @@ private removeHourFromServer(hourId: string): Observable<void> {
       username: credentials.hashedUsername,
       password: credentials.hashedPassword
     };
-    
+  
     try {
       this.http.post<Location[]>('https://bvproduct.app/api/locations.php', authPayload)
         .subscribe({
           next: (response) => {
+            console.log('Fetched locations:', response);
             this.locations = response;
-            console.log(this.locations);
-            this.cdr.markForCheck();
+            this.cdr.detectChanges(); 
           },
           error: (error) => {
             console.error('Error loading locations', error);
@@ -368,6 +419,7 @@ private removeHourFromServer(hourId: string): Observable<void> {
       this.errorMessage = 'An unexpected error occurred. Please try again later.';
     }
   }
+  
 
   async loadTypes() {
     const credentials = this.authService.getHashedCredentials();
@@ -401,64 +453,61 @@ private removeHourFromServer(hourId: string): Observable<void> {
     }
   }
 
-    async unosForme() {
-      this.formSubmitted = false;
-    
-      if (this.applyForm.valid) {
-        const formData = this.applyForm.value;
-        const credentials = this.authService.getHashedCredentials();
-    
-        if (!credentials) {
-          this.errorMessage = 'Failed to retrieve credentials.';
-          console.error(this.errorMessage);
-          return;
-        }
-    
-        const payload = {
-          ...formData,
-          username: credentials.hashedUsername,
-          password: credentials.hashedPassword,
-        };
-    
-        console.log("payload: ", payload);
-    
-        const headers = { 'Content-Type': 'application/json' };
-    
-        this.http.post('https://bvproduct.app/api/hours-add.php', payload, { headers })
-          .subscribe({
-            next: response => {
-              this.formSubmitted = true;
-              this.errorMessage = null;
-    
-              // Add hours locally
-              this.addHours();
-    
-              console.log('Obrazac uspješno poslan', response);
-    
-              // Trigger change detection to update the view
-              this.cdr.markForCheck();
-            },
-            error: error => {
-              this.formSubmitted = true;
-              this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
-              console.error('Greška kod slanja obrasca', error);
-    
-              // Trigger change detection in case of error
-              this.cdr.markForCheck();
-            }
-          });
-    
-      } else {
-        this.formSubmitted = true;
-        this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
-        console.warn('Obrasac nije ispravan');
-        
-        // Ensure change detection is triggered when form is invalid
-        this.cdr.markForCheck();
-      }
-    }
-    
+  async unosForme() {
+    this.formSubmitted = false;
   
+    if (this.applyForm.valid) {
+      const formData = this.applyForm.value;
+      const credentials = this.authService.getHashedCredentials();
+  
+      if (!credentials) {
+        this.errorMessage = 'Failed to retrieve credentials.';
+        console.error(this.errorMessage);
+        return;
+      }
+  
+      const payload = {
+        ...formData,
+        username: credentials.hashedUsername,
+        password: credentials.hashedPassword,
+      };
+  
+      const headers = { 'Content-Type': 'application/json' };
+  
+      this.http.post('https://bvproduct.app/api/hours-add.php', payload, { headers })
+        .subscribe({
+          next: response => {
+            this.formSubmitted = true;
+            this.errorMessage = null;
+  
+            // Add hours locally
+            this.addHours();
+  
+            console.log('Obrazac uspješno poslan', response);
+  
+            // Reset form after successful submission
+            this.applyForm.reset();
+            this.cdr.markForCheck();
+          },
+          error: error => {
+            this.formSubmitted = true;
+            this.errorMessage = 'Došlo je do pogreške prilikom slanja obrasca. Pokušajte ponovno kasnije.';
+            console.error('Greška kod slanja obrasca', error);
+  
+            // Trigger change detection in case of error
+            this.cdr.markForCheck();
+          }
+        });
+  
+    } else {
+      this.formSubmitted = true;
+      this.errorMessage = 'Molim vas da prije slanja ispravno ispunite sva polja.';
+      console.warn('Obrasac nije ispravan');
+  
+      // Ensure change detection is triggered when form is invalid
+      this.cdr.markForCheck();
+    }
+  }
     
     navHours() {
       this.router.navigateByUrl('/hours');
@@ -473,7 +522,9 @@ private removeHourFromServer(hourId: string): Observable<void> {
     }
   
     navOdjava() {
-      this.router.navigateByUrl('/home');
+    this.clearUserData();
+    this.authService.logout();
+    this.router.navigate(['/home']);
     }
   
 }
