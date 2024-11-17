@@ -36,13 +36,6 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /*@import "@ionic/angular/css/palettes/dark.system.css";*/
 
-/*:root {
-  ion-color-primary: red;
-}*/
-
-:root {
-  --ion-color-primary: white;
-}
 
 body.dark {
     --ion-background-color: #121212;
@@ -97,9 +90,7 @@ body.dark {
   align-items: center;
  }
 
-/*
-obriši: alert-button ion-focusable ion-activatable alert-button-group sc-ion-alert-md
-odustani: alert-button ion-focusable ion-activatable alert-button-role-cancel alert-button-group sc-ion-alert-md
-
-*/
+ .alert-button-group .sc-ion-alert-md {
+  color: white;
+ }
  
