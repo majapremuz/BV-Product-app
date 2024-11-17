@@ -96,10 +96,8 @@ export class HoursPage implements OnInit {
       this.router.navigate(['/home']);
     }
   }
-  /*
-  jozo: hoursByDate_b115ac9b5f498f09908b555f22262a0fd24090c2:"{"09.09.2024":{"hours":[{"id":-1,"hours":4,"date_of_work":"2024-09-09"},{"id":-1,"hours":4.5,"date_of_work":"2024-09-09"}],"sum":8.5}}"
-  test: hoursByDate_b115ac9b5f498f09908b555f22262a0fd24090c2:"{"09.09.2024":{"hours":[{"id":-1,"hours":4,"date_of_work":"2024-09-09"},{"id":-1,"hours":4.5,"date_of_work":"2024-09-09"}],"sum":8.5}}"
-  */
+  
+
   selectDate(datum: string) {
     const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
     this.selectedDate = formattedDate;
@@ -229,11 +227,11 @@ private removeHourFromServer(hourId: string): Observable<void> {
         this.errorMessage = 'Server returned failure response.';
       }
     }),
-    map(() => undefined)  // Convert the result to Observable<void>
+    map(() => undefined) 
   );
 }
 
-    setCurrentWeek(weekOffset = 0) {
+    /*setCurrentWeek(weekOffset = 0) {
       const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
       const endOfWeek = moment(startOfWeek).endOf('isoWeek');
 
@@ -251,8 +249,27 @@ private removeHourFromServer(hourId: string): Observable<void> {
   
       // Load hours for the new week
       this.loadHours();
-    }
+    }*/
 
+      setCurrentWeek(weekOffset = 0) {
+        const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
+        const endOfWeek = moment(startOfWeek).endOf('isoWeek');
+      
+        // Optimize: Only update if the week has actually changed.
+        if (this.currentWeekStart !== startOfWeek.format('YYYY-MM-DD')) {
+          this.currentWeekStart = startOfWeek.format('YYYY-MM-DD');
+          this.currentWeekEnd = endOfWeek.format('YYYY-MM-DD');
+      
+          // Update currentWeek array
+          this.currentWeek = Array.from({ length: 7 }).map((_, i) =>
+            startOfWeek.clone().add(i, 'days').format('DD.MM.YYYY')
+          );
+      
+          // Load hours for the new week, potentially async to prevent blocking
+          this.loadHours();
+        }
+      }
+      
   previousWeek() {
     const currentStartDate = moment(this.currentWeek[0], 'DD.MM.YYYY');
     const previousWeekStartDate = currentStartDate.clone().subtract(1, 'weeks');
