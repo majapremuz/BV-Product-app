@@ -11,7 +11,9 @@
      </div>
      
      <button name="submit" type="submit">Prijava</button>
-   </form>
-  
+   </form>  
   </div>
+
+  <div class="login-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
 </ion-content>
