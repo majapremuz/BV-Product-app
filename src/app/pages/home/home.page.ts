@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -15,7 +16,7 @@ interface ServerResponse {
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, ReactiveFormsModule],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, ReactiveFormsModule],
 })
 
 export class HomePage {
@@ -52,14 +53,16 @@ export class HomePage {
             this.authService.login(korisnik, lozinka);
             this.router.navigate(['/hours']);
           } else {
-            this.errorMessage = 'Login failed. Please check your credentials.';
+            this.errorMessage = 'Prijava neuspijela. Molim Vas da provrijerite da li su podaci ispravni.';
           }
         },
         error: (error) => {
-          this.errorMessage = 'An error occurred. Please try again later.';
+          this.errorMessage = 'Greška kod prijave. Molim Vas da pokušate ponovno kasnije.';
           console.error('Login failed', error);
         }
       });
+    } else {
+      this.errorMessage = 'Molim Vas da ispunite oba polja';
     }
   }   
     
