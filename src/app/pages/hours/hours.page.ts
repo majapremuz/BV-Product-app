@@ -54,6 +54,7 @@ export class HoursPage implements OnInit {
 
   formSubmitted: boolean = false;
   errorMessage: string | null = null;
+  restrictionTriggered = false;
   locations: Location[] = [];
   types: Types[] = [];
   hours: Hours[] = [];
@@ -82,31 +83,43 @@ export class HoursPage implements OnInit {
     });
   }
 
-
-  ngOnInit() {
+  async ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.clearUserData();
       this.loadLocations();
       this.loadTypes();
-      this.loadHours();
       this.setCurrentWeek();
       this.loadSelectedDate();
       this.loadHoursByDate();
+  
+      await this.loadHours();
+  
+      // Show the reminder at the start, even before form submission
+      this.presentDailyReminder();
     } else {
       this.router.navigate(['/home']);
     }
   }
   
+    
+    selectDate(datum: string) {
+      const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
+      if (this.canEditDate(formattedDate)) {
+        this.selectedDate = formattedDate;
+        this.applyForm.patchValue({ datum: formattedDate });
+        this.saveSelectedDate(formattedDate);
+        this.cdr.markForCheck();
+        this.scrollToForm();
+      } else {
+        this.presentEditRestrictionAlert();
+      }
 
-  selectDate(datum: string) {
-    const formattedDate = moment(datum, 'DD.MM.YYYY').format('YYYY-MM-DD');
-    this.selectedDate = formattedDate;
-    this.applyForm.patchValue({ datum: formattedDate });
-    this.saveSelectedDate(formattedDate);
-    this.cdr.markForCheck();
-    this.scrollToForm();
-  }
-
+      if (!this.canEditDate(datum)) {
+        this.presentEditRestrictionAlert();
+        return;
+      }
+    }
+    
   isSelectedDate(day: string): boolean {
     const formattedDay = moment(day, 'DD.MM.YYYY').format('YYYY-MM-DD');
     return this.selectedDate === formattedDay;
@@ -118,7 +131,7 @@ export class HoursPage implements OnInit {
     }
   }
 
-  addHours() {
+  /*addHours() {
     const selectedDate = this.selectedDate;
     const selectedHours = parseFloat(this.applyForm.get('sati')?.value || '0');
   
@@ -139,9 +152,48 @@ export class HoursPage implements OnInit {
         this.saveHoursByDate();
     }
     this.cdr.detectChanges();
+}*/
+
+addHours() {
+  const selectedDate = this.selectedDate;
+  const selectedHours = parseFloat(this.applyForm.get('sati')?.value || '0');
+
+  if (selectedDate && selectedHours) {
+    const formattedDate = moment(selectedDate, 'YYYY-MM-DD').format('DD.MM.YYYY');
+
+    // Check if the date is editable first (i.e., it's not from the previous month after the 5th)
+    if (!this.canEditDate(selectedDate)) {
+      this.presentEditRestrictionAlert();
+      return; // Stop execution if the date is not editable
+    }
+
+    // Check if hours are already added for the date before proceeding
+    if (this.hoursByDate[formattedDate]) {
+      this.presentEditRestrictionAlert();
+      return; // Stop execution if hours are already added for the selected date
+    }
+
+    // Proceed with adding hours if no restrictions apply
+    if (!this.hoursByDate[formattedDate]) {
+      this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
+    }
+
+    const hourId = -1;
+
+    this.hoursByDate[formattedDate].hours.push({ id: hourId, hours: selectedHours, date_of_work: selectedDate });
+    this.hoursByDate[formattedDate].sum += selectedHours;
+
+    this.applyForm.get('sati')?.reset();
+    this.cdr.markForCheck();
+    this.saveHoursByDate();
+  }
+  this.cdr.detectChanges();
 }
 
-async deleteHour(day: string, hourId: number) {
+
+
+
+/*async deleteHour(day: string, hourId: number) {
   const formattedDate = moment(day, 'DD.MM.YYYY').format('DD.MM.YYYY');
   const hoursForDay = this.hoursByDate[formattedDate]?.hours || [];
   
@@ -199,7 +251,74 @@ async deleteHour(day: string, hourId: number) {
   });
 
   await alert.present();
+}*/
+
+async deleteHour(day: string, hourId: number) {
+  const formattedDate = moment(day, 'DD.MM.YYYY').format('DD.MM.YYYY');
+  const hoursForDay = this.hoursByDate[formattedDate]?.hours || [];
+  
+  const hourIndex = hoursForDay.findIndex(hour => hour.id === hourId);
+  if (hourIndex === -1) {
+    console.error('Hour to delete not found:', hourId);
+    return;
+  }
+
+  const hourToDelete = hoursForDay[hourIndex];
+
+  // Check if the date can be edited (i.e., it's not from the previous month after the 5th)
+  if (!this.canEditDate(day)) {
+    this.presentEditRestrictionAlert();
+    return;
+  }
+
+  const alert = await this.alertController.create({
+    header: 'Potvrda brisanja',
+    message: `Jeste li sigurni da želite obrisati ${hourToDelete.hours} radnih sati na ${formattedDate}?`,
+    cssClass: 'my-custom-alert',
+    buttons: [
+      {
+        text: 'Odustani',
+        role: 'cancel',
+        cssClass: 'alert-button-group',
+      },
+      {
+        text: 'Obriši',
+        cssClass: 'alert-button-group',
+        handler: () => {
+          // Remove hour locally
+          this.hoursByDate[formattedDate].hours.splice(hourIndex, 1);
+          this.hoursByDate[formattedDate].sum -= hourToDelete.hours;
+
+          // Clean up empty date entries
+          if (this.hoursByDate[formattedDate].hours.length === 0) {
+            delete this.hoursByDate[formattedDate];
+          }
+
+          // Call the server to delete the hour using its ID
+          this.removeHourFromServer(hourId.toString())
+            .subscribe({
+              next: (response) => {
+                console.log('Successfully deleted hour from server', response);
+                this.saveHoursByDate();
+                this.cdr.detectChanges();
+              },
+              error: (error: any) => {
+                console.error('Error deleting hour from server', error);
+                // Restore the state in case of error
+                this.hoursByDate[formattedDate].hours.splice(hourIndex, 0, hourToDelete);
+                this.hoursByDate[formattedDate].sum += hourToDelete.hours;
+                this.cdr.detectChanges();
+                this.errorMessage = 'Failed to delete hour. Please try again.';
+              }
+            });
+        }
+      }
+    ],
+  });
+
+  await alert.present();
 }
+
 
 
 private removeHourFromServer(hourId: string): Observable<void> {
@@ -231,25 +350,55 @@ private removeHourFromServer(hourId: string): Observable<void> {
   );
 }
 
-    /*setCurrentWeek(weekOffset = 0) {
-      const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
-      const endOfWeek = moment(startOfWeek).endOf('isoWeek');
+canEditDate(date: string): boolean {
+  const selectedDate = moment(date, 'DD-MM-YYYY');
+  const today = moment();
 
-  
-      // Format dates for your application
-      this.currentWeekStart = startOfWeek.format('YYYY-MM-DD');
-      this.currentWeekEnd = endOfWeek.format('YYYY-MM-DD');
-      console.log("end off week: ", this.currentWeekEnd)
+  // Get the start of the current month and the 5th day of the current month
+  const startOfCurrentMonth = today.clone().startOf('month');
+  const fifthOfCurrentMonth = startOfCurrentMonth.clone().add(5, 'days');
 
-  
-      // Update currentWeek array if needed
-      this.currentWeek = Array.from({ length: 7 }).map((_, i) =>
-        startOfWeek.clone().add(i, 'days').format('DD.MM.YYYY')
-      );
-  
-      // Load hours for the new week
-      this.loadHours();
-    }*/
+  // Check if the selected date is from the previous month
+  const isFromPreviousMonth = selectedDate.isBefore(startOfCurrentMonth, 'month');
+
+  // Check if today is after the 5th of the current month
+  const isAfterFifth = today.isAfter(fifthOfCurrentMonth);
+
+  // Restrict editing for previous month after the 5th
+  if (isFromPreviousMonth && isAfterFifth) {
+    return false; // Prevent editing for previous month after the 5th
+  }
+
+  return true; // Allow editing for current or upcoming months
+}
+
+
+
+async presentEditRestrictionAlert() {
+  const alert = await this.alertController.create({
+      header: 'Upozorenje',
+      message: 'Ne možete mijenjati radne sate za prethodni mjesec nakon 5. dana u mjesecu. Molim vas obratite se adminu.',
+      buttons: [{
+          text: 'OK',
+          handler: () => {
+              this.restrictionTriggered = true;
+          }
+      }]
+  });
+  await alert.present();
+}
+
+async presentDailyReminder() {
+  const today = moment().format('DD.MM.YYYY');
+  if (!this.hoursByDate[today]) {
+    const alert = await this.alertController.create({
+      header: 'Podsjetnik',
+      message: 'Niste unijeli radne sate za današnji dan. Molimo vas da ih unesete.',
+      buttons: ['U redu']
+    });
+    await alert.present();
+  }
+}
 
       setCurrentWeek(weekOffset = 0) {
         const startOfWeek = moment().startOf('isoWeek').add(weekOffset, 'weeks');
@@ -349,61 +498,6 @@ private removeHourFromServer(hourId: string): Observable<void> {
     this.cdr.detectChanges(); 
 }
 
-  
-
-  async loadHours() {
-    const credentials = this.authService.getHashedCredentials();
-    console.log('Retrieved credentials:', credentials);
-    
-    if (!credentials) {
-      this.errorMessage = 'Failed to retrieve credentials.';
-      this.router.navigate(['/home']);
-      return;
-    }
-  
-    const startOfWeek = this.currentWeekStart;
-    const endOfWeek = this.currentWeekEnd;
-  
-    const authPayload = {
-      username: credentials.hashedUsername,
-      password: credentials.hashedPassword,
-      start: startOfWeek,
-      end: endOfWeek
-    };
-
-    console.log("authPayload: ", authPayload)
-  
-    try {
-      this.http.post<any>('https://bvproduct.app/api/hours.php', authPayload)
-        .subscribe({
-          next: (response) => {
-  
-            // Process the response to update hoursByDate
-            this.hoursByDate = {};
-            response.forEach((hour: Hours) => {
-              const formattedDate = moment(hour.date_of_work, 'YYYY-MM-DD').format('DD.MM.YYYY');
-              
-              if (!this.hoursByDate[formattedDate]) {
-                this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
-              }
-  
-              this.hoursByDate[formattedDate].hours.push({ id: hour.id, hours: hour.hours, date_of_work: hour.date_of_work });
-              this.hoursByDate[formattedDate].sum += hour.hours;
-            });
-  
-            this.cdr.markForCheck();
-          },
-          error: (error) => {
-            console.error('Error loading hours', error);
-            this.errorMessage = 'Failed to load hours. Please try again later.';
-          }
-        });
-    } catch (error) {
-      console.error('Unexpected error', error);
-      this.errorMessage = 'An unexpected error occurred. Please try again later.';
-    }
-  }
-
   async loadLocations() {
     const credentials = this.authService.getHashedCredentials();
     
@@ -436,6 +530,51 @@ private removeHourFromServer(hourId: string): Observable<void> {
       this.errorMessage = 'An unexpected error occurred. Please try again later.';
     }
   }
+
+    async loadHours() {
+      const credentials = this.authService.getHashedCredentials();
+      //console.log('Retrieved credentials:', credentials);
+    
+      if (!credentials) {
+        this.errorMessage = 'Failed to retrieve credentials.';
+        this.router.navigate(['/home']);
+        return;
+      }
+    
+      const startOfWeek = this.currentWeekStart;
+      const endOfWeek = this.currentWeekEnd;
+    
+      const authPayload = {
+        username: credentials.hashedUsername,
+        password: credentials.hashedPassword,
+        start: startOfWeek,
+        end: endOfWeek
+      };
+    
+      //console.log("authPayload: ", authPayload);
+    
+      try {
+        const response = await this.http.post<any>('https://bvproduct.app/api/hours.php', authPayload).toPromise();
+    
+        // Process the response to update hoursByDate
+        this.hoursByDate = {};
+        response.forEach((hour: Hours) => {
+          const formattedDate = moment(hour.date_of_work, 'YYYY-MM-DD').format('DD.MM.YYYY');
+          
+          if (!this.hoursByDate[formattedDate]) {
+            this.hoursByDate[formattedDate] = { hours: [], sum: 0 };
+          }
+    
+          this.hoursByDate[formattedDate].hours.push({ id: hour.id, hours: hour.hours, date_of_work: hour.date_of_work });
+          this.hoursByDate[formattedDate].sum += hour.hours;
+        });
+    
+        this.cdr.markForCheck();
+      } catch (error) {
+        console.error('Error loading hours', error);
+        this.errorMessage = 'Failed to load hours. Please try again later.';
+      }
+    }
   
 
   async loadTypes() {
@@ -471,6 +610,13 @@ private removeHourFromServer(hourId: string): Observable<void> {
   }
 
   async unosForme() {
+    if (this.restrictionTriggered) {
+      console.warn('Cannot submit form due to restriction.');
+      this.errorMessage = null;
+      this.formSubmitted = false;
+      return; // Prevent form submission
+  }
+  
     this.formSubmitted = false;
   
     if (this.applyForm.valid) {
@@ -545,4 +691,3 @@ private removeHourFromServer(hourId: string): Observable<void> {
     }
   
 }
-
